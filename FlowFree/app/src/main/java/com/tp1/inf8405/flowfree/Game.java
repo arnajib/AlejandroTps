@@ -1,18 +1,11 @@
 package com.tp1.inf8405.flowfree;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
-import com.tp1.inf8405.flowfree.ImageAdapter;
 
 public class Game extends Activity {
     int i=0, j=0;
@@ -22,6 +15,9 @@ public class Game extends Activity {
     final ImageAdapter im = new ImageAdapter(this);
     int posTouchDown = 0;
     int posTouchUp = 0;
+    enum Direction {haut, hautDroite,droite,basDroite,bas,basGauche,gauche,hautGauche,centre};
+    enum Couleur {bleu,gris,jaune,kaki,marron,orange,pistache,rouge,vert,zblanc};
+    enum FormObjet{cercle,cercleLigne,coin,ligne,caseVide};
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +53,90 @@ public class Game extends Activity {
 //
 //            }
 //        });
+    }
+    /*
+    *              (pa - 8) hg            h (pa - 7)        hd (pa - 6)
+    *
+    *              (pa - 1) g             pa                d (pa +1)
+    *
+    *              (pa + 6) bg           b  (pa + 7)       bd (pa + 8)
+    *
+    * */
+    public Direction trouveDirection(int positionDepart, int positionActuel){
+
+        Direction direction = Direction.centre;
+        if(positionDepart < positionActuel){
+            if((positionDepart - 1) == positionActuel)
+                direction = Direction.gauche;
+            else if((positionDepart - 6) == positionActuel)
+                direction = Direction.hautDroite;
+            else if((positionDepart - 7) == positionActuel)
+                direction = Direction.haut;
+            else
+                direction = Direction.hautGauche;
+        }
+        else{
+            if((positionDepart + 1) == positionActuel)
+                direction = Direction.droite;
+            else if((positionDepart + 6) == positionActuel)
+                direction = Direction.basGauche;
+            else if((positionDepart + 7) == positionActuel)
+                direction = Direction.bas;
+            else
+                direction = Direction.basDroite;
+
+        }
+        return direction;
+    }
+    public char SplitStr(String nom){
+        char c = 'z';
+        int pos = (nom.indexOf(".") - 1);
+        c = nom.charAt(pos);
+        return c;
+    }
+    public Couleur trouveCouleur(String nomImageActuellel){
+        Couleur couleur = Couleur.zblanc;
+        char c = SplitStr(nomImageActuellel);
+        if(c == 'b')
+            couleur = Couleur.bleu;
+        else if(c == 'g')
+            couleur = Couleur.gris;
+        else if(c == 'j')
+            couleur = Couleur.jaune;
+        else if(c == 'k')
+            couleur = Couleur.kaki;
+        else if(c == 'm')
+            couleur = Couleur.marron;
+        else if(c == 'o')
+            couleur = Couleur.orange;
+        else if(c == 'p')
+            couleur = Couleur.pistache;
+        else if(c == 'r')
+            couleur = Couleur.rouge;
+        else if(c == 'v')
+            couleur = Couleur.vert;
+
+        return couleur;
+    }
+    public FormObjet trouveShape(){
+        FormObjet f = FormObjet.cercle;
+        return f;
+    }
+    public String BuildPathImage(){
+        String path = "/src/drawable/cercle_vert.png";
+
+        return path;
+    }
+    public void trouveImageConvenable(int positionDepart, int positionActuel){
+
+        if(positionDepart != positionActuel){
+            switch (trouveDirection(positionDepart, positionActuel)) {
+                case haut:
+            }
+
+        }
+        return;
+
     }
     public void addListenerToGrid() {
         gridview.setOnTouchListener(new View.OnTouchListener() {
@@ -115,4 +195,7 @@ public class Game extends Activity {
 //        return true;
 //    }
 }
+
+
+
 
