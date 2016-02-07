@@ -35,7 +35,7 @@ public class ImageAdapter extends BaseAdapter {
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(85, 85));
+            imageView.setLayoutParams(new GridView.LayoutParams(155, 155));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setPadding(1, 1, 1, 1);
         } else {
@@ -48,27 +48,12 @@ public class ImageAdapter extends BaseAdapter {
 
     // references to our images
     private Integer[] mThumbIds = {
-            R.drawable.white, R.drawable.white, R.drawable.pink, R.drawable.white, R.drawable.white, R.drawable.green,
-            R.drawable.blue, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.pink, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white,
-            R.drawable.blue, R.drawable.white,
-            R.drawable.green, R.drawable.white
+            R.drawable.white, R.drawable.white, R.drawable.pink, R.drawable.white, R.drawable.white, R.drawable.green, R.drawable.blue,
+            R.drawable.white, R.drawable.white, R.drawable.white,R.drawable.white, R.drawable.white, R.drawable.pink, R.drawable.white,
+            R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white,R.drawable.white,
+            R.drawable.white, R.drawable.white, R.drawable.white,R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white,
+            R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white,R.drawable.white,
+            R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white,R.drawable.white, R.drawable.white,
+            R.drawable.white, R.drawable.white, R.drawable.blue, R.drawable.white, R.drawable.green, R.drawable.white, R.drawable.white
     };
 }
