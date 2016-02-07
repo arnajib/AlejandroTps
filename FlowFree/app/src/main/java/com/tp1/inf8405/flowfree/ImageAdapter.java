@@ -31,11 +31,20 @@ public class ImageAdapter extends BaseAdapter {
         System.out.println("Item Is :-"+mThumbIds[position].toString());
         return mThumbIds[position];
     }
+    public Object getItemTabPrincipal(int position) {
+        return mThumbIdsRefPrincipal[position];
+    }
 
     public long getItemId(int position) {
-        System.out.println("Geting Id of Item "+mThumbIds[position]);
-        if(iView != null){
+         if(iView != null){
             iView.setImageResource(mThumbIds[0]);
+            Toast.makeText(mContext, "Call", Toast.LENGTH_SHORT).show();
+        }
+        return 0;
+    }
+    public long getItemIdTabPrincipal(int position) {
+        if(iView != null){
+            iView.setImageResource(mThumbIdsRefPrincipal[0]);
             Toast.makeText(mContext, "Call", Toast.LENGTH_SHORT).show();
         }
         return 0;
@@ -57,6 +66,19 @@ public class ImageAdapter extends BaseAdapter {
         imageView.setImageResource(mThumbIds[position]);
         return imageView;
     }
+
+    public void setItem(int firstClick, int secondClick) {
+        mThumbIds[firstClick] = mThumbIds[secondClick];
+    }
+
+    public void setItemInteger(int secondClick, Integer help) {
+        mThumbIds[secondClick]=help;
+    }
+
+    public void setItemInTabPrincipal(int firstTouch, int secondTouch) {
+        mThumbIds[firstTouch] = mThumbIdsRefPrincipal[secondTouch];
+    }
+
 
 //    @Override
 //    public void onItemClick(AdapterView<?> parent, View v, int position,
@@ -83,11 +105,112 @@ public class ImageAdapter extends BaseAdapter {
             R.drawable.white, R.drawable.white, R.drawable.blue, R.drawable.white, R.drawable.green, R.drawable.white, R.drawable.white
     };
 
-    public void setItem(int firstClick, int secondClick) {
-        mThumbIds[firstClick] = mThumbIds[secondClick];
-    }
+    // references to our images
+    private Integer[] mThumbIdsRefPrincipal = {
+            R.drawable.case_vide, R.drawable.cercle_b,
+            R.drawable.cercle_g ,
+            R.drawable.cercle_j,
+            R.drawable.cercle_l,
+            R.drawable.cercle_m,
+            R.drawable.cercle_o,
+            R.drawable.cercle_p,
+            R.drawable.cercle_r,
+            R.drawable.cercle_v,
+            R.drawable.cercle_bas_b,
+            R.drawable.cercle_bas_g,
+            R.drawable.cercle_bas_j,
+            R.drawable.cercle_bas_l,
+            R.drawable.cercle_bas_m,
+            R.drawable.cercle_bas_o,
+            R.drawable.cercle_bas_p,
+            R.drawable.cercle_bas_r,
+            R.drawable.cercle_bas_v,
+            R.drawable.cercle_droite_b,
+            R.drawable.cercle_droite_g,
+            R.drawable.cercle_droite_p,
+            R.drawable.cercle_droite_j,
+            R.drawable.cercle_droite_l,
+            R.drawable.cercle_droite_m,
+            R.drawable.cercle_droite_o,
+            R.drawable.cercle_droite_r,
+            R.drawable.cercle_droite_v,
+            R.drawable.cercle_gauche_b,
+            R.drawable.cercle_gauche_g,
+            R.drawable.cercle_gauche_j,
+            R.drawable.cercle_gauche_l,
+            R.drawable.cercle_gauche_m,
+            R.drawable.cercle_gauche_o,
+            R.drawable.cercle_gauche_p,
+            R.drawable.cercle_gauche_r,
+            R.drawable.cercle_gauche_v,
+            R.drawable.cercle_haut_b,
+            R.drawable.cercle_haut_g,
+            R.drawable.cercle_haut_j,
+            R.drawable.cercle_haut_l,
+            R.drawable.cercle_haut_m,
+            R.drawable.cercle_haut_o,
+            R.drawable.cercle_haut_p,
+            R.drawable.cercle_haut_r,
+            R.drawable.cercle_haut_v,
+            R.drawable.coin1_b,
+            R.drawable.coin2_b,
+            R.drawable.coin3_b,
+            R.drawable.coin4_b,
+            R.drawable.coin1_g,
+            R.drawable.coin2_g,
+            R.drawable.coin3_g,
+            R.drawable.coin4_g,
+            R.drawable.coin1_j,
+            R.drawable.coin2_j,
+            R.drawable.coin3_j,
+            R.drawable.coin4_j,
+            R.drawable.coin1_l,
+            R.drawable.coin2_l,
+            R.drawable.coin3_l,
+            R.drawable.coin4_l,
+            R.drawable.coin1_m,
+            R.drawable.coin2_m,
+            R.drawable.coin3_m,
+            R.drawable.coin4_m,
+            R.drawable.coin1_o,
+            R.drawable.coin2_o,
+            R.drawable.coin3_o,
+            R.drawable.coin4_o,
+            R.drawable.coin1_r,
+            R.drawable.coin2_r,
+            R.drawable.coin3_r,
+            R.drawable.coin4_r,
+            R.drawable.coin1_p,
+            R.drawable.coin2_p,
+            R.drawable.coin3_p,
+            R.drawable.coin4_p,
+            R.drawable.coin1_v,
+            R.drawable.coin2_v,
+            R.drawable.coin3_v,
+            R.drawable.coin4_v,
+            R.drawable.ligne_horizontale_b,
+            R.drawable.ligne_verticale_b,
+            R.drawable.ligne_horizontale_g,
+            R.drawable.ligne_verticale_g,
+            R.drawable.ligne_horizontale_j,
+            R.drawable.ligne_verticale_j,
+            R.drawable.ligne_horizontale_l,
+            R.drawable.ligne_verticale_l,
+            R.drawable.ligne_horizontale_m,
+            R.drawable.ligne_verticale_m,
+            R.drawable.ligne_horizontale_o,
+            R.drawable.ligne_verticale_o,
+            R.drawable.ligne_horizontale_r,
+            R.drawable.ligne_verticale_r,
+            R.drawable.ligne_horizontale_v,
+            R.drawable.ligne_verticale_v,
+            R.drawable.ligne_horizontale_p,
+            R.drawable.ligne_verticale_p,
+            R.drawable.white,
+            R.drawable.pink,
+            R.drawable.green,
+            R.drawable.blue,
+            R.drawable.white
 
-    public void setItemInteger(int secondClick, Integer help) {
-        mThumbIds[secondClick]=help;
-    }
+    };
 }
