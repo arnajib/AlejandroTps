@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "com.tp1.inf8405.flowfree"
+        applicationId "com.inf8405.tp1.flowfree"
         minSdkVersion 18
         targetSdkVersion 23
         versionCode 1
