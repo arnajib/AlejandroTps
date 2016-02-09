@@ -10,6 +10,8 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.inf8405.tp1.flowfree.R;
 import com.tp1.inf8405.flowfree.ImageAdapter;
 
 public class Game extends Activity {

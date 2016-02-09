@@ -9,6 +9,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.inf8405.tp1.flowfree.R;
+
 
 /**
  * Created by najib on 04/02/16.

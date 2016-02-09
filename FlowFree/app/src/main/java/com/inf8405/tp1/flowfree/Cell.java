@@ -12,137 +12,242 @@ import android.view.View;
  */
 public class Cell extends View {
 
-    private int color;
-    private boolean isEndpoint;
-    private boolean isUsed;
-    private Pair<Integer, Integer> position;
-    private Paint cellPaint;
-    private Pair<Integer, Integer> precedingCellPosition;
-    private Pair<Integer, Integer> nextCellPosition;
-
-    public Cell(Context context, int color, boolean isEndpoint, Pair<Integer, Integer> position)
-    {
-        super(context);
-        this.color = color;
-        this.isEndpoint = isEndpoint;
-        this.isUsed = false;
-        this.position = position;
-        this.cellPaint = new Paint();
-        this.precedingCellPosition = new Pair<>(-1, -1);
-        this.nextCellPosition = new Pair<>(-1, -1);
+    // Forme de la cellule, Cercle pour les points à relier
+    // et Rectangle pour les lignes qui les relient
+    public enum Sharp {
+        Circle,
+        UpDown,
+        LeftRight,
+        LeftDown,
+        LeftUp,
+        RightDown,
+        RightUp,
+        CircleUp,
+        CircleDown,
+        CircleLeft,
+        CircleRight,
+        None
     }
 
-    protected void onDraw(Canvas canvas)
-    {
+    // Type de la cellule, First : la première cliquée
+    public enum CellType {
+        First,
+        Second,
+        None
+    }
+
+
+    // Attribues de la cellule
+    private Sharp sharp;
+    private CellType type;
+    private int color;
+    private int indexX;
+    private int indexY;
+    private boolean used;
+    private Paint paint;
+
+    // Constructeur
+    public Cell(Context context, Sharp sharp, CellType type, int color, int indexX, int indexY, boolean used) {
+        super(context);
+        this.sharp = sharp;
+        this.type = type;
+        this.color = color;
+        this.indexX = indexX;
+        this.indexY = indexY;
+        this.used = used;
+        this.paint = new Paint();
+    }
+
+    protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        cellPaint.reset();
-        int drawOffset = (int) (0.333 * getWidth());
+        paint.setColor(this.color);
+        this.setBackgroundResource(R.drawable.cell_shape);
 
-        cellPaint.setColor(this.color);
-        if(this.isEndpoint){
-            canvas.drawCircle(getWidth() / 2, getHeight() / 2, getHeight() / 3, cellPaint);
-            if(isUsed){
+        // les paramètres du rectangle
+        float rectIndexLeft;
+        float rectIndexTop;
+        float rectIndexRight;
+        float rectIndexBottom;
 
-                //This Pair represent the position right before (if this endpoint closes the path) or right after (if this endpoint opens the path)
-                Pair<Integer, Integer> cellReferencePosition;
+        // Les paramètres du cercle
+        float circleIndexCX;
+        float circleIndexCY;
+        float circleRadius;
 
-                if(nextCellPosition.first != -1){
-                    cellReferencePosition = nextCellPosition;
-                }else{
-                    cellReferencePosition = precedingCellPosition;
-                }
+        switch (this.sharp) {
+            // Dessiner un cercle
+            case Circle:
+                // Initialiser les paramètres du cercle
+                circleIndexCX = (float) getWidth() / 2;
+                circleIndexCY = (float) getHeight() / 2;
+                circleRadius = (float) getHeight() / 3;
+                canvas.drawCircle(circleIndexCX, circleIndexCY, circleRadius, paint);
+                break;
 
-                //If the endpoint is on the same row as its preceding cell
-                if(cellReferencePosition.first == position.first){
-                    //If the preceding cell is on the next column on the right, the rectangle will be facing right
-                    if(cellReferencePosition.second > position.second){
-                        canvas.drawRect(getWidth()/2, drawOffset, getWidth(), getHeight() - drawOffset, cellPaint);
-                    }else{
-                        canvas.drawRect(0, drawOffset, getWidth()/2, getHeight() - drawOffset, cellPaint);
-                    }
-                    //Else, the endpoint is on the same column as its preceding cell
-                }else{
-                    //If the preceding cell is on the next row below, the rectangle will be facing down
-                    if(cellReferencePosition.first > position.first){
-                        canvas.drawRect(drawOffset, getHeight() / 2, getWidth() - drawOffset, getHeight(), cellPaint);
-                    }else{
-                        canvas.drawRect(drawOffset, 0, getWidth() - drawOffset, getHeight() / 2, cellPaint);
-                    }
-                }
-            }
-        }else if(this.isUsed){
+            // Dessiner un rectangle de haut en bas
+            case UpDown:
+                // Initialiser les paramètres du rectangle
+                rectIndexLeft = (float) getWidth() / 4;
+                rectIndexTop = 0;
+                rectIndexRight = (float) getWidth() * 3 / 4;
+                rectIndexBottom = (float) getHeight();
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
+                break;
 
-            //This first condition checks if the current cell is a "corner" between two other cells
-            if(nextCellPosition.first != -1 && precedingCellPosition.first != -1 &&
-                    Math.abs(nextCellPosition.first - precedingCellPosition.first) == 1 &&
-                    Math.abs(nextCellPosition.second - precedingCellPosition.second) == 1){
+            // Dessiner un rectangle de gauche à droite
+            case LeftRight:
+                // Initialiser les paramètres du rectangle
+                rectIndexLeft = 0;
+                rectIndexTop = (float) getWidth() / 4;
+                rectIndexRight = (float) getWidth();
+                rectIndexBottom = (float) getHeight() * 3 / 4;
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
+                break;
 
-                // +--
-                // |
+            // Dessiner un rectangle pour corner de gauche en bas
+            case LeftDown:
+                // Initialiser les paramètres du 1er rectangle
+                rectIndexLeft = 0;
+                rectIndexTop = (float) getWidth() / 4;
+                rectIndexRight = (float) getWidth() / 2;
+                rectIndexBottom = (float) getHeight() * 3 / 4;
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
 
-                // AND
+                // Initialiser les paramètres du 2eme rectangle
+                rectIndexLeft = (float) getWidth() / 4;
+                rectIndexTop = (float) getHeight() / 4;
+                rectIndexRight = (float) getWidth() * 3 / 4;
+                rectIndexBottom = (float) getHeight();
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
+                break;
+                // Dessiner un rectangle pour corner de gauche en haut
+            case LeftUp:
+                // Initialiser les paramètres du 1er rectangle
+                rectIndexLeft = 0;
+                rectIndexTop = (float) getWidth() / 4;
+                rectIndexRight = (float) getWidth() / 2;
+                rectIndexBottom = (float) getHeight() * 3 / 4;
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
 
-                //   |
-                // --+
-                if( (nextCellPosition.first < precedingCellPosition.first && nextCellPosition.second > precedingCellPosition.second)
-                        || (nextCellPosition.first > precedingCellPosition.first && nextCellPosition.second < precedingCellPosition.second)){
+                // Initialiser les paramètres du 2eme rectangle
+                rectIndexLeft = (float) getWidth() / 4;
+                rectIndexTop = 0;
+                rectIndexRight = (float) getWidth() * 3 / 4;
+                rectIndexBottom = (float) getHeight() * 3 / 4;
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
 
-                    if( (position.second < nextCellPosition.second ) || (position.second < precedingCellPosition.second) ){
+                break;
 
-                        canvas.drawCircle(getWidth() / 2, getHeight() / 2, getHeight() / 6, cellPaint);
-                        canvas.drawRect(getWidth() / 2, drawOffset, getWidth(), getHeight() - drawOffset, cellPaint);
-                        canvas.drawRect(drawOffset, getHeight() / 2, getWidth() - drawOffset, getHeight(), cellPaint);
+            // Dessiner un rectangle pour corner de gauche en haut
+            case RightDown:
+                // Initialiser les paramètres du 1er rectangle
+                rectIndexLeft = (float) getWidth() / 2;
+                rectIndexTop = (float) getWidth() / 4;
+                rectIndexRight = (float) getWidth();
+                rectIndexBottom = (float) getHeight() * 3 / 4;
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
 
-                    }else{
+                // Initialiser les paramètres du 2eme rectangle
+                rectIndexLeft = (float) getWidth() / 4;
+                rectIndexTop = (float) getHeight() / 4;
+                rectIndexRight = (float) getWidth() * 3 / 4;
+                rectIndexBottom = (float) getHeight();
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
 
-                        canvas.drawCircle(getWidth() / 2, getHeight() / 2, getHeight() / 6, cellPaint);
-                        canvas.drawRect(0, drawOffset, getWidth() / 2, getHeight() - drawOffset, cellPaint);
-                        canvas.drawRect(drawOffset, 0, getWidth() - drawOffset, getHeight() / 2, cellPaint);
-                    }
+                break;
 
-                } else
+            // Dessiner un rectangle pour corner de gauche en haut
+            case RightUp:
+                // Initialiser les paramètres du 1er rectangle
+                rectIndexLeft = (float) getWidth() / 2;
+                rectIndexTop = (float) getWidth() / 4;
+                rectIndexRight = (float) getWidth();
+                rectIndexBottom = (float) getHeight() * 3 / 4;
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
 
-                    // --+
-                    //   |
+                // Initialiser les paramètres du 2eme rectangle
+                rectIndexLeft = (float) getWidth() / 4;
+                rectIndexTop = 0;
+                rectIndexRight = (float) getWidth() * 3 / 4;
+                rectIndexBottom = (float) getHeight() * 3 / 4;
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
 
-                    // AND
+                break;
 
-                    // |
-                    // +--
-                    if( (nextCellPosition.first > precedingCellPosition.first && nextCellPosition.second > precedingCellPosition.second)
-                            || (nextCellPosition.first < precedingCellPosition.first && nextCellPosition.second < precedingCellPosition.second)){
 
-                        if( (position.second > nextCellPosition.second) || (position.second > precedingCellPosition.second)  ){
+            // Dessiner un rectangle pour corner de gauche en haut
+            case CircleRight:
+                // Initialiser les paramètres du cercle
+                circleIndexCX = (float) getWidth() / 2;
+                circleIndexCY = (float) getHeight() / 2;
+                circleRadius = (float) getHeight() / 3;
+                canvas.drawCircle(circleIndexCX, circleIndexCY, circleRadius, paint);
 
-                            canvas.drawCircle(getWidth() / 2, getHeight() / 2, getHeight() / 6, cellPaint);
-                            canvas.drawRect(0, drawOffset, getWidth() / 2, getHeight() - drawOffset, cellPaint);
-                            canvas.drawRect(drawOffset, getHeight() / 2, getWidth() - drawOffset, getHeight(), cellPaint);
+                // Initialiser les paramètres du 2eme rectangle
+                rectIndexLeft = (float) getWidth() / 2;
+                rectIndexTop = (float) getWidth() / 4;
+                rectIndexRight = (float) getWidth();
+                rectIndexBottom = (float) getHeight() * 3 / 4;
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
 
-                        }else{
+                break;
 
-                            canvas.drawCircle(getWidth() / 2, getHeight() / 2, getHeight() / 6, cellPaint);
-                            canvas.drawRect(drawOffset, 0, getWidth() - drawOffset, getHeight() / 2, cellPaint);
-                            canvas.drawRect(getWidth() / 2, +drawOffset, getWidth(), getHeight() - drawOffset, cellPaint);
-                        }
+            // Dessiner un rectangle pour corner de gauche en haut
+            case  CircleUp:
+                // Initialiser les paramètres du cercle
+                circleIndexCX = (float) getWidth() / 2;
+                circleIndexCY = (float) getHeight() / 2;
+                circleRadius = (float) getHeight() / 3;
+                canvas.drawCircle(circleIndexCX, circleIndexCY, circleRadius, paint);
 
-                    }
+                // Initialiser les paramètres du 2eme rectangle
+                rectIndexLeft = (float) getWidth() / 4;
+                rectIndexTop = 0;
+                rectIndexRight = (float) getWidth() * 3 / 4;
+                rectIndexBottom = (float) getHeight() * 3 / 4;
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
 
-                //Else means we're a regular drawn cell (rectangular)
-            } else {
+                break;
 
-                //If the preceding cell is on the same row we draw horizontally streched
-                if(precedingCellPosition.first == position.first) {
-                    canvas.drawRect(0, drawOffset, getWidth(), getHeight()-drawOffset, cellPaint);
-                } else {
-                    canvas.drawRect(drawOffset, 0, getWidth()-drawOffset, getHeight(), cellPaint);
-                }
-            }
+            // Dessiner un rectangle pour corner de gauche en haut
+            case  CircleLeft:
+                // Initialiser les paramètres du cercle
+                circleIndexCX = (float) getWidth() / 2;
+                circleIndexCY = (float) getHeight() / 2;
+                circleRadius = (float) getHeight() / 3;
+                canvas.drawCircle(circleIndexCX, circleIndexCY, circleRadius, paint);
+
+                // Initialiser les paramètres du 2eme rectangle
+                rectIndexLeft = 0;
+                rectIndexTop = (float) getWidth() / 4;
+                rectIndexRight = (float) getWidth() / 2;
+                rectIndexBottom = (float) getHeight() * 3 / 4;
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
+
+                break;
+
+            // Dessiner un rectangle pour corner de gauche en haut
+            case  CircleDown:
+                // Initialiser les paramètres du cercle
+                circleIndexCX = (float) getWidth() / 2;
+                circleIndexCY = (float) getHeight() / 2;
+                circleRadius = (float) getHeight() / 3;
+                canvas.drawCircle(circleIndexCX, circleIndexCY, circleRadius, paint);
+
+                // Initialiser les paramètres du 2eme rectangle
+                rectIndexLeft = (float) getWidth() / 4;
+                rectIndexTop = (float) getHeight() / 4;
+                rectIndexRight = (float) getWidth() * 3 / 4;
+                rectIndexBottom = (float) getHeight();
+                canvas.drawRect(rectIndexLeft, rectIndexTop, rectIndexRight, rectIndexBottom, paint);
+
+                break;
+
+            default:
+                paint.setColor(Color.WHITE);
+                canvas.drawCircle(getWidth() / 2, getHeight() / 2, getHeight() / 3, paint);
         }
 
-        //Contour of the cell (Grid)
-        cellPaint.setStyle(Paint.Style.STROKE);
-        cellPaint.setColor(Color.BLACK);
-        canvas.drawRect(0, 0, getWidth(), getHeight(), cellPaint);
     }
 
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -160,49 +265,64 @@ public class Cell extends View {
         setMeasuredDimension(size, size);
     }
 
-    public Pair<Integer, Integer> getPosition(){
-        return this.position;
+    // Getters and Setters
+    public Sharp getSharp() {
+        return sharp;
     }
 
-    public boolean isEndpoint(){
-        return this.isEndpoint;
+    public void setSharp(Sharp sharp) {
+        this.sharp = sharp;
     }
 
-    public int getColor(){
-        return this.color;
+
+    public CellType getType() {
+        return type;
     }
 
-    public void setColor(int color){
+    public void setType(CellType type) {
+        this.type = type;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
         this.color = color;
     }
 
-    public void setUsed(boolean isUsed){
-        this.isUsed = isUsed;
+    public int getIndexX() {
+        return indexX;
     }
 
-    public boolean isUsed(){
-        return this.isUsed;
+    public void setIndexX(int indexX) {
+        this.indexX = indexX;
     }
 
-    public void setPrecedingCellPosition(Pair<Integer, Integer> pos){
-        this.precedingCellPosition = pos;
+    public int getIndexY() {
+        return indexY;
     }
 
-    public void setNextCellPosition(Pair<Integer, Integer> pos){
-        this.nextCellPosition = pos;
+    public void setIndexY(int indexY) {
+        this.indexY = indexY;
     }
 
-    public Pair<Integer, Integer> getPrecedingCellPosition(){
-        return precedingCellPosition;
+    public boolean isUsed() {
+        return used;
     }
 
-    public Pair<Integer, Integer> getNextCellPosition(){
-        return nextCellPosition;
+    public void setUsed(boolean used) {
+        this.used = used;
     }
 
-    public void emptyOldCellPositions(){
-        this.nextCellPosition = new Pair<>(-1, -1);
-        this.precedingCellPosition = new Pair<>(-1, -1);
+    public Paint getPaint() {
+        return paint;
     }
+
+    public void setPaint(Paint paint) {
+        this.paint = paint;
+    }
+
+
 }
 

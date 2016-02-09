@@ -11,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 
+import com.inf8405.tp1.flowfree.R;
+
 public class MainActivity extends Activity {
 
 
