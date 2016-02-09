@@ -9,6 +9,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 
 /**
  * Created by najib on 04/02/16.
@@ -17,9 +19,35 @@ public class ImageAdapter extends BaseAdapter {
     private Context mContext;
     private int lastClicked;
     ImageView iView;
+    ArrayList<String> arrayList;
+
 
     public ImageAdapter(Context c) {
+
         mContext = c;
+//        arrayList = new ArrayList<>();
+//        arrayList.add("case_vide");
+//        arrayList.add("cercle_b");
+//        arrayList.add("cercle_g");
+//        arrayList.add("cercle_j");
+//        arrayList.add("cercle_l");
+//        arrayList.add("cercle_m");
+//        arrayList.add("cercle_o");
+//        arrayList.add("cercle_p");
+//        arrayList.add("cercle_r");
+//        arrayList.add("cercle_v");
+//        arrayList.add("cercle_bas_b");
+//        arrayList.add("cercle_bas_g");
+//        arrayList.add("cercle_bas_j");
+//        arrayList.add("cercle_bas_l");
+//        arrayList.add("cercle_bas_m");
+//        arrayList.add("cercle_bas_o");
+//        arrayList.add("cercle_bas_p");
+//        arrayList.add("cercle_bas_r");
+//        arrayList.add("cercle_bas_v");
+
+
+
     }
 
     public int getCount() {
@@ -28,7 +56,7 @@ public class ImageAdapter extends BaseAdapter {
 
     public Object getItem(int position) {
 
-        System.out.println("Item Is :-"+mThumbIds[position].toString());
+        //System.out.println("Item Is :-"+mThumbIds[position].toString());
         return mThumbIds[position];
     }
     public Object getItemTabPrincipal(int position) {
@@ -36,18 +64,19 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     public long getItemId(int position) {
-         if(iView != null){
-            iView.setImageResource(mThumbIds[0]);
-            Toast.makeText(mContext, "Call", Toast.LENGTH_SHORT).show();
-        }
-        return 0;
+//         if(iView != null){
+//            iView.setImageResource(mThumbIds[0]);
+//            Toast.makeText(mContext, "Call", Toast.LENGTH_SHORT).show();
+//        }
+        return position;
     }
     public long getItemIdTabPrincipal(int position) {
-        if(iView != null){
-            iView.setImageResource(mThumbIdsRefPrincipal[0]);
-            Toast.makeText(mContext, "Call", Toast.LENGTH_SHORT).show();
-        }
-        return 0;
+//        if(iView != null){
+//            iView.setImageResource(mThumbIdsRefPrincipal[position]);
+//            Toast.makeText(mContext, "Call", Toast.LENGTH_SHORT).show();
+//        }
+
+        return mThumbIdsRefPrincipal[position];
     }
 
     // create a new ImageView for each item referenced by the Adapter
@@ -68,7 +97,7 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     public void setItem(int firstClick, int secondClick) {
-        mThumbIds[firstClick] = mThumbIds[secondClick];
+        mThumbIds[firstClick] = mThumbIdsRefPrincipal[secondClick];
     }
 
     public void setItemInteger(int secondClick, Integer help) {
@@ -105,9 +134,11 @@ public class ImageAdapter extends BaseAdapter {
             R.drawable.white, R.drawable.white, R.drawable.blue, R.drawable.white, R.drawable.green, R.drawable.white, R.drawable.white
     };
 
+
     // references to our images
     private Integer[] mThumbIdsRefPrincipal = {
-            R.drawable.case_vide, R.drawable.cercle_b,
+            R.drawable.case_vide,
+            R.drawable.cercle_b,
             R.drawable.cercle_g ,
             R.drawable.cercle_j,
             R.drawable.cercle_l,
@@ -213,4 +244,13 @@ public class ImageAdapter extends BaseAdapter {
             R.drawable.white
 
     };
+
+    public int getItemPosition(int imageResourceIdentifier) {
+        for(int i = 0; i < mThumbIdsRefPrincipal.length; i++)
+        {
+            if(mThumbIdsRefPrincipal[i] == imageResourceIdentifier)
+                return i;
+        }
+        return -1;
+    }
 }

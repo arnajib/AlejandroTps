@@ -1,6 +1,7 @@
 package com.tp1.inf8405.flowfree;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -94,6 +95,11 @@ public class Game extends Activity {
         c = nom.charAt(pos);
         return c;
     }
+    public String findColor(String nom){
+        if(nom.endsWith("green"))
+             nom = nom.replace("green", "ligne_horizontale_v");
+        return nom;
+    }
     public Couleur trouveCouleur(String nomImageActuellel){
         Couleur couleur = Couleur.zblanc;
         char c = SplitStr(nomImageActuellel);
@@ -168,9 +174,14 @@ public class Game extends Activity {
                         currentXPosition = me.getX();
                         currentYPosition = me.getY();
                         posTouchUp = gridview.pointToPosition((int) currentXPosition, (int) currentYPosition);
-                        Integer help = new Integer((int) im.getItemIdTabPrincipal(posTouchDown));
-                        im.setItemInTabPrincipal(posTouchUp, posTouchDown);
-                        //im.setItemInteger(posTouchUp, help);
+                        Integer help = new Integer((int) im.getItem(posTouchDown));
+                        String nomImage = getResources().getResourceName(help); // com.tp1.inf8405.flowfree:drawable/blue
+                        String matchImage = findColor(nomImage);
+                        int imageResourceIdentifier = getResources().getIdentifier(matchImage, "drawable", getPackageName());
+                        int newImageId = im.getItemPosition(imageResourceIdentifier);
+                        //im.setItemInTabPrincipal(posTouchUp, posTouchDown);
+                        // im.setItemInteger(posTouchUp, help);
+                        im.setItem(posTouchUp, newImageId);
                         im.notifyDataSetChanged();
                         Toast.makeText(Game.this, " Up: " + posTouchUp,Toast.LENGTH_SHORT).show();
                         break;
