@@ -125,28 +125,28 @@ public class ImageAdapter extends BaseAdapter {
 
     // references to our images
     private Integer[] mThumbIds = {
-            R.drawable.white, R.drawable.white, R.drawable.pink, R.drawable.white, R.drawable.white, R.drawable.green, R.drawable.blue,
-            R.drawable.white, R.drawable.white, R.drawable.white,R.drawable.white, R.drawable.white, R.drawable.pink, R.drawable.white,
+            R.drawable.white, R.drawable.white, R.drawable.cercle_pd_r, R.drawable.white, R.drawable.white, R.drawable.cercle_pd_v, R.drawable.cercle_pd_b,
+            R.drawable.white, R.drawable.white, R.drawable.white,R.drawable.white, R.drawable.white, R.drawable.cercle_pd_r, R.drawable.white,
             R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white,R.drawable.white,
             R.drawable.white, R.drawable.white, R.drawable.white,R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white,
             R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white,R.drawable.white,
             R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white, R.drawable.white,R.drawable.white, R.drawable.white,
-            R.drawable.white, R.drawable.white, R.drawable.blue, R.drawable.white, R.drawable.green, R.drawable.white, R.drawable.white
+            R.drawable.white, R.drawable.white, R.drawable.cercle_pd_b, R.drawable.white, R.drawable.cercle_pd_v, R.drawable.white, R.drawable.white
     };
 
 
     // references to our images
     private Integer[] mThumbIdsRefPrincipal = {
             R.drawable.case_vide,
-            R.drawable.cercle_b,
-            R.drawable.cercle_g ,
-            R.drawable.cercle_j,
-            R.drawable.cercle_l,
-            R.drawable.cercle_m,
-            R.drawable.cercle_o,
-            R.drawable.cercle_p,
-            R.drawable.cercle_r,
-            R.drawable.cercle_v,
+            R.drawable.cercle_pd_b,
+            R.drawable.cercle_pd_g ,
+            R.drawable.cercle_pd_j,
+            R.drawable.cercle_pd_l,
+            R.drawable.cercle_pd_m,
+            R.drawable.cercle_pd_o,
+            R.drawable.cercle_pd_p,
+            R.drawable.cercle_pd_r,
+            R.drawable.cercle_pd_v,
             R.drawable.cercle_bas_b,
             R.drawable.cercle_bas_g,
             R.drawable.cercle_bas_j,
@@ -238,11 +238,6 @@ public class ImageAdapter extends BaseAdapter {
             R.drawable.ligne_horizontale_p,
             R.drawable.ligne_verticale_p,
             R.drawable.white,
-            R.drawable.pink,
-            R.drawable.green,
-            R.drawable.blue,
-            R.drawable.white
-
     };
 
     public int getItemPosition(int imageResourceIdentifier) {
