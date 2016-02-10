@@ -14,25 +14,6 @@
         android:orientation="horizontal"
         android:padding="5dp">
 
-        <EditText
-            android:id="@+id/rowno_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="RowNo"
-            android:inputType="number" />
-
-        <EditText
-            android:id="@+id/colno_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="ColNo"
-            android:inputType="number" />
-
-        <Button
-            android:id="@+id/build_btn_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Build" />
     </LinearLayout>
 
     <TableLayout
