@@ -46,7 +46,20 @@ public class Cell extends View {
     private boolean used;
     private Paint paint;
 
-    // Constructeur
+    // Constructeur par defaut
+    public Cell(Context context) {
+        super(context);
+        this.sharp = Sharp.Circle;
+        this.type = CellType.None;
+        this.color = Color.WHITE;
+        this.indexX = 0;
+        this.indexY = 0;
+        this.used = false;
+        this.paint = new Paint();
+    }
+
+
+    // Constructeur par parametres
     public Cell(Context context, Sharp sharp, CellType type, int color, int indexX, int indexY, boolean used) {
         super(context);
         this.sharp = sharp;
