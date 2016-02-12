@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +19,9 @@ import java.util.ArrayList;
 public class Game extends Activity {
 
     TableLayout table_game;
+    // TODO: remplacer size et level a partir de level Activity
     int size = 8;
-    int level = 2;
+    int level = 3;
     Cell[][] ArrayCell; // Tableau qui contient les cellules du jeu
     ArrayList<Cell> cell_used = new ArrayList<>();
     int game_score = 0;
@@ -27,6 +29,8 @@ public class Game extends Activity {
     int color_chosen;
     int IndexPreviousCellRow = 0;
     int IndexPreviousCellCol = 0;
+    int IndexCurrentCellRow = 0;
+    int IndexCurrentCellCol = 0;
     Cell previous_cell;
     Cell current_cell;
 
@@ -59,6 +63,8 @@ public class Game extends Activity {
                             ArrayCell[IndexRow][IndexCol].isUsed()) {
                         IndexPreviousCellRow = IndexRow;
                         IndexPreviousCellCol = IndexCol;
+                        IndexCurrentCellRow = IndexRow;
+                        IndexCurrentCellCol = IndexCol;
                         active_draw = true;
                         color_chosen = ArrayCell[IndexRow][IndexCol].getColor();
 
@@ -77,17 +83,18 @@ public class Game extends Activity {
                         active_draw = false;
                         clearCellDrawen();
                         System.out.println("ACTIONUP ****");
+                        System.out.println("Current Cell row : " + IndexCurrentCellRow + " col :"
+                                + IndexCurrentCellCol);
                     } else {
                         // TODO : Increment score
                         ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.Second);
+                        redesignSecondCircle(IndexCurrentCellRow, IndexCurrentCellCol);
                         cell_used.clear();
                     }
                 }
                 if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() ==
                         MotionEvent.ACTION_MOVE) {
-                    if (cell_used.size() > 3) {
 
-                    }
                     if (cell_used.size() > 0) {
                         addCellUsed(ArrayCell[IndexRow][IndexCol]);
                     }
@@ -96,103 +103,16 @@ public class Game extends Activity {
                         current_cell = cell_used.get(cell_used.size() - 1);
                         IndexPreviousCellRow = previous_cell.getIndexRow();
                         IndexPreviousCellCol = previous_cell.getIndexCol();
+                        IndexCurrentCellRow = current_cell.getIndexRow();
+                        IndexCurrentCellCol = current_cell.getIndexCol();
 
-//                        System.out.println("previous_cell : X " + previous_cell.getIndexRow() +
-// " -" +
-//                                " Y " + previous_cell.getIndexCol());
-//                        System.out.println("current_cell : X " + current_cell.getIndexRow() + "
-// - Y" +
-//                                " " + current_cell.getIndexCol());
-                    }
-                    // From Down to Up
-                    if (IndexPreviousCellRow > IndexRow && IndexPreviousCellCol == IndexCol) {
-                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
-                                active_draw, Cell.Sharp.UpDown);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
-                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
-                                        == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
-                                    .Sharp.CircleUp);
                     }
 
-                    // From Up to Down
-                    if (IndexPreviousCellRow < IndexRow && IndexPreviousCellCol == IndexCol) {
-                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
-                                active_draw, Cell.Sharp.UpDown);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
-                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
-                                        == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
-                                    .Sharp.CircleDown);
-                    }
-
-                    // From Right to Left
-                    if (IndexPreviousCellRow == IndexRow && IndexPreviousCellCol > IndexCol) {
-                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
-                                active_draw, Cell.Sharp.LeftRight);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
-                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
-                                        == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
-                                    .Sharp.CircleLeft);
-                    }
-
-                    // From Left to Right
-                    if (IndexPreviousCellRow == IndexRow && IndexPreviousCellCol < IndexCol) {
-                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
-                                active_draw, Cell.Sharp.LeftRight);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
-                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
-                                        == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
-                                    .Sharp.CircleRight);
-                    }
-
+                    // Dessiner les lignes entre les cercles
+                    DrawLine();
                     // Corners
 
-                    // From Down to Right
-                    if (IndexPreviousCellRow > IndexRow && IndexPreviousCellCol < IndexCol) {
-                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
-                                active_draw, Cell.Sharp.RightDown);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
-                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
-                                        == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
-                                    .Sharp.CircleUp);
-                    }
 
-                    // From Up to Right
-                    if (IndexPreviousCellRow < IndexRow && IndexPreviousCellCol < IndexCol) {
-                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
-                                active_draw, Cell.Sharp.RightUp);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
-                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
-                                        == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
-                                    .Sharp.CircleDown);
-                    }
-
-                    // From Down to Left
-                    if (IndexPreviousCellRow > IndexRow && IndexPreviousCellCol > IndexCol) {
-                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
-                                active_draw, Cell.Sharp.LeftDown);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
-                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
-                                        == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
-                                    .Sharp.CircleLeft);
-                    }
-
-                    // From Up to Left
-                    if (IndexPreviousCellRow < IndexRow && IndexPreviousCellCol > IndexCol) {
-                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
-                                active_draw, Cell.Sharp.LeftUp);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
-                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
-                                        == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
-                                    .Sharp.CircleRight);
-                    }
                     setScore(100);
                     return true;
                 }
@@ -216,6 +136,243 @@ public class Game extends Activity {
         }
     }
 
+    private void redesignSecondCircle(int IndexRow, int IndexCol) {
+        // From Up to Down
+        if (IndexPreviousCellRow > IndexCurrentCellRow && IndexPreviousCellCol ==
+                IndexCurrentCellCol) {
+            if (ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].isUsed() &&
+                    ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].getSharp() == Cell.Sharp
+                            .Circle)
+                ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].setSharp(Cell.Sharp.CircleDown);
+        }
+
+        // From Down to Up
+        if (IndexPreviousCellRow < IndexCurrentCellRow && IndexPreviousCellCol == IndexCol) {
+            if (ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].isUsed() &&
+                    ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].getSharp() == Cell.Sharp
+                            .Circle)
+                ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].setSharp(Cell.Sharp.CircleUp);
+        }
+
+        // From Right to Left
+        if (IndexPreviousCellRow == IndexCurrentCellRow && IndexPreviousCellCol >
+                IndexCurrentCellCol) {
+            if (ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].isUsed() &&
+                    ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].getSharp() == Cell.Sharp
+                            .Circle)
+                ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].setSharp(Cell.Sharp
+                        .CircleRight);
+        }
+
+        // From Left to Right
+        if (IndexPreviousCellRow == IndexCurrentCellRow && IndexPreviousCellCol <
+                IndexCurrentCellCol) {
+            if (ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].isUsed() &&
+                    ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].getSharp() == Cell.Sharp
+                            .Circle)
+                ArrayCell[IndexCurrentCellRow][IndexCurrentCellCol].setSharp(Cell.Sharp.CircleLeft);
+        }
+
+
+        clearTableLayout();
+        BuildTable(size);
+    }
+
+    private void DrawLine() {
+
+        // cellules temporaires pour verifier si nous avons un coins
+        Cell cell_a = null;
+        Cell cell_b = null;
+        Cell cell_c = null;
+
+        // pour avoir un corner, il faut au moins 3 cellules choisies
+        if (cell_used.size() >= 3) {
+            cell_a = cell_used.get(cell_used.size() - 3);
+            cell_b = cell_used.get(cell_used.size() - 2);
+            cell_c = cell_used.get(cell_used.size() - 1);
+
+        }
+
+        // Verifier si c'est un corner
+        if ((cell_used.size() >= 3) && (cell_a.getIndexRow() != cell_c.getIndexRow() && cell_a
+                .getIndexCol() != cell_c.getIndexCol())) {
+
+            // From Left to Down or From Down to Left
+            if (((cell_c.getIndexRow() == cell_b.getIndexRow()) && (cell_a.getIndexCol() ==
+                    cell_b.getIndexCol()) && (cell_a.getIndexCol() > cell_c.getIndexCol()) &&
+                    (cell_a.getIndexRow() > cell_c.getIndexRow())) || ((cell_a.getIndexRow() ==
+                    cell_b.getIndexRow()) && (cell_c.getIndexCol() == cell_b.getIndexCol()) &&
+                    (cell_a.getIndexCol() < cell_c.getIndexCol()) && (cell_a.getIndexRow() <
+                    cell_c.getIndexRow()))) {
+
+                if (!ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].isUsed()) {
+                    ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].setSharp(Cell.Sharp
+                            .LeftDown);
+                    ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].setColor(color_chosen);
+                    clearTableLayout();
+                    BuildTable(size);
+                }
+                System.out.println("LeftDown");
+
+            }
+
+            // From Left to Up or From Up to Left
+            if (((cell_a.getIndexRow() == cell_b.getIndexRow()) && (cell_c.getIndexCol() ==
+                    cell_b.getIndexCol()) && (cell_a.getIndexCol() < cell_c.getIndexCol()) &&
+                    (cell_a.getIndexRow() > cell_c.getIndexRow())) || ((cell_c.getIndexRow() ==
+                    cell_b.getIndexRow()) && (cell_a.getIndexCol() == cell_b.getIndexCol()) &&
+                    (cell_a.getIndexCol() > cell_c.getIndexCol()) && (cell_a.getIndexRow() <
+                    cell_c.getIndexRow()))) {
+
+                if (!ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].isUsed()) {
+                    ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].setSharp(Cell.Sharp
+                            .LeftUp);
+                    ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].setColor(color_chosen);
+                    clearTableLayout();
+                    BuildTable(size);
+                }
+                System.out.println("LeftUp");
+
+            }
+
+            // From Right to Down or From Down to Right
+            if (((cell_a.getIndexRow() == cell_b.getIndexRow()) && (cell_c.getIndexCol() ==
+                    cell_b.getIndexCol()) && (cell_a.getIndexCol() > cell_c.getIndexCol()) &&
+                    (cell_a.getIndexRow() < cell_c.getIndexRow())) || ((cell_c.getIndexRow() ==
+                    cell_b.getIndexRow()) && (cell_a.getIndexCol() == cell_b.getIndexCol()) &&
+                    (cell_a.getIndexCol() < cell_c.getIndexCol()) && (cell_a.getIndexRow() >
+                    cell_c.getIndexRow()))) {
+
+                if (!ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].isUsed()) {
+                    ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].setSharp(Cell.Sharp
+                            .RightDown);
+                    ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].setColor(color_chosen);
+                    clearTableLayout();
+                    BuildTable(size);
+                }
+                System.out.println("RightDown");
+
+            }
+
+            // From Right to Up or From Up to Right
+            if (((cell_a.getIndexRow() == cell_b.getIndexRow()) && (cell_c.getIndexCol() ==
+                    cell_b.getIndexCol()) && (cell_a.getIndexCol() > cell_c.getIndexCol()) &&
+                    (cell_a.getIndexRow() > cell_c.getIndexRow())) || ((cell_c.getIndexRow() ==
+                    cell_b.getIndexRow()) && (cell_a.getIndexCol() == cell_b.getIndexCol()) &&
+                    (cell_a.getIndexCol() < cell_c.getIndexCol()) && (cell_a.getIndexRow() <
+                    cell_c.getIndexRow()))) {
+
+                if (!ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].isUsed()) {
+                    ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].setSharp(Cell.Sharp
+                            .RightUp);
+                    ArrayCell[cell_b.getIndexRow()][cell_b.getIndexCol()].setColor(color_chosen);
+                    clearTableLayout();
+                    BuildTable(size);
+                }
+                System.out.println("RightUp");
+
+            }
+
+        } else {
+            // From Down to Up
+            if (IndexPreviousCellRow > IndexCurrentCellRow && IndexPreviousCellCol ==
+                    IndexCurrentCellCol) {
+
+                drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen, active_draw,
+                        Cell.Sharp.UpDown);
+                if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                        ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell
+                                .Sharp.Circle)
+                    ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp
+                            .CircleUp);
+            }
+
+            // From Up to Down
+            if (IndexPreviousCellRow < IndexCurrentCellRow && IndexPreviousCellCol ==
+                    IndexCurrentCellCol) {
+                drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen, active_draw,
+                        Cell.Sharp.UpDown);
+                if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                        ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell
+                                .Sharp.Circle)
+                    ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp
+                            .CircleDown);
+            }
+
+            // From Right to Left
+            if (IndexPreviousCellRow == IndexCurrentCellRow && IndexPreviousCellCol >
+                    IndexCurrentCellCol) {
+                drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen, active_draw,
+                        Cell.Sharp.LeftRight);
+                if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                        ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell
+                                .Sharp.Circle)
+                    ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp
+                            .CircleLeft);
+            }
+
+            // From Left to Right
+            if (IndexPreviousCellRow == IndexCurrentCellRow && IndexPreviousCellCol <
+                    IndexCurrentCellCol) {
+                drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen, active_draw,
+                        Cell.Sharp.LeftRight);
+                if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                        ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell
+                                .Sharp.Circle)
+                    ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp
+                            .CircleRight);
+            }
+            // From Down to Right
+            if (IndexPreviousCellRow > IndexCurrentCellRow && IndexPreviousCellCol <
+                    IndexCurrentCellCol) {
+                drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen, active_draw,
+                        Cell.Sharp.RightDown);
+                if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                        ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell
+                                .Sharp.Circle)
+                    ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp
+                            .CircleUp);
+            }
+
+            // From Up to Right
+            if (IndexPreviousCellRow < IndexCurrentCellRow && IndexPreviousCellCol <
+                    IndexCurrentCellCol) {
+                drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen, active_draw,
+                        Cell.Sharp.RightUp);
+                if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                        ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell
+                                .Sharp.Circle)
+                    ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp
+                            .CircleDown);
+            }
+
+            // From Down to Left
+            if (IndexPreviousCellRow > IndexCurrentCellRow && IndexPreviousCellCol >
+                    IndexCurrentCellCol) {
+                drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen, active_draw,
+                        Cell.Sharp.LeftDown);
+                if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                        ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell
+                                .Sharp.Circle)
+                    ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp
+                            .CircleLeft);
+
+            }
+
+            // From Up to Left
+            if (IndexPreviousCellRow < IndexCurrentCellRow && IndexPreviousCellCol >
+                    IndexCurrentCellCol) {
+                drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen, active_draw,
+                        Cell.Sharp.LeftUp);
+                if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                        ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell
+                                .Sharp.Circle)
+                    ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp
+                            .CircleRight);
+            }
+        }
+    }
+
     private void clearCellDrawen() {
         System.out.println("Size :" + cell_used.size());
         for (Cell item : cell_used) {
@@ -231,11 +388,6 @@ public class Game extends Activity {
             }
             ArrayCell[IndexRow][IndexCol].setSharp(Cell.Sharp.Circle);
             ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.None);
-            System.out.println("Array : Row " + IndexRow + " -" +
-                    " Col " + IndexCol);
-            System.out.println("get : Row " + ArrayCell[IndexRow][IndexCol].getIndexRow() + " -" +
-                    " Col " + ArrayCell[IndexRow][IndexCol].getIndexCol());
-
         }
         cell_used.clear();
         clearTableLayout();
