@@ -41,8 +41,8 @@ public class Cell extends View {
     private Sharp sharp;
     private CellType type;
     private int color;
-    private int indexX;
-    private int indexY;
+    private int indexRow;
+    private int indexCol;
     private boolean used;
     private Paint paint;
 
@@ -52,22 +52,34 @@ public class Cell extends View {
         this.sharp = Sharp.Circle;
         this.type = CellType.None;
         this.color = Color.WHITE;
-        this.indexX = 0;
-        this.indexY = 0;
+        this.indexRow = 0;
+        this.indexCol = 0;
         this.used = false;
         this.paint = new Paint();
     }
 
 
     // Constructeur par parametres
-    public Cell(Context context, Sharp sharp, CellType type, int color, int indexX, int indexY, boolean used) {
+    public Cell(Context context, Sharp sharp, CellType type, int color, int indexRow, int indexCol, boolean used) {
         super(context);
         this.sharp = sharp;
         this.type = type;
         this.color = color;
-        this.indexX = indexX;
-        this.indexY = indexY;
+        this.indexRow = indexRow;
+        this.indexCol = indexCol;
         this.used = used;
+        this.paint = new Paint();
+    }
+
+    // Constructeur par defaut
+    public Cell(Context context, Cell cell) {
+        super(context);
+        this.sharp = cell.sharp;
+        this.type = cell.getType();
+        this.color = cell.color;
+        this.indexRow = cell.indexRow;
+        this.indexCol = cell.indexCol;
+        this.used = false;
         this.paint = new Paint();
     }
 
@@ -304,20 +316,20 @@ public class Cell extends View {
         this.color = color;
     }
 
-    public int getIndexX() {
-        return indexX;
+    public int getIndexRow() {
+        return indexRow;
     }
 
-    public void setIndexX(int indexX) {
-        this.indexX = indexX;
+    public void setIndexRow(int indexRow) {
+        this.indexRow = indexRow;
     }
 
-    public int getIndexY() {
-        return indexY;
+    public int getIndexCol() {
+        return indexCol;
     }
 
-    public void setIndexY(int indexY) {
-        this.indexY = indexY;
+    public void setIndexY(int indexCol) {
+        this.indexCol = indexCol;
     }
 
     public boolean isUsed() {
