@@ -1,6 +1,8 @@
 package com.inf8405.tp1.flowfree;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -12,6 +14,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -20,8 +23,8 @@ public class Game extends Activity {
 
     TableLayout table_game;
     // TODO: remplacer size et level a partir de level Activity
-    int size = 8;
-    int level = 3;
+    int size = 7;
+    int level = 2;
     Cell[][] ArrayCell; // Tableau qui contient les cellules du jeu
     ArrayList<Cell> cell_used = new ArrayList<>();
     int game_score = 0;
@@ -33,7 +36,8 @@ public class Game extends Activity {
     int IndexCurrentCellCol = 0;
     Cell previous_cell;
     Cell current_cell;
-
+    boolean over = false; // Partie perdue
+    AlertDialog.Builder alert;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +48,22 @@ public class Game extends Activity {
         // Remplir la table selon le niveau et la taille passee en parametres
         InitArrayCell(size, level);
         BuildTable(size);
-        // Recupperer la taille de TableLayout table_game
+
+        //Afficher message de victoire
+        alert = new AlertDialog.Builder(Game.this);
+        alert.setTitle("About");
+        alert.setMessage("Sample About");
+        alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick (DialogInterface dialog, int id) {
+                Toast.makeText (Game.this, "Success", Toast.LENGTH_SHORT) .show();
+            }
+        });
+        alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Toast.makeText(Game.this, "Fail", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
         table_game.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -68,11 +87,13 @@ public class Game extends Activity {
                         active_draw = true;
                         color_chosen = ArrayCell[IndexRow][IndexCol].getColor();
 
-                        ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.First);
 
-                        addCellUsed(ArrayCell[IndexRow][IndexCol]);
-                        previous_cell = cell_used.get(cell_used.size() - 1);
-                        current_cell = cell_used.get(cell_used.size() - 1);
+                        if (!isConnected(ArrayCell[IndexRow][IndexCol])) {
+                            ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.First);
+                            addCellUsed(ArrayCell[IndexRow][IndexCol]);
+                            previous_cell = cell_used.get(cell_used.size() - 1);
+                            current_cell = cell_used.get(cell_used.size() - 1);
+                        }
                     }
 
                 }
@@ -82,23 +103,29 @@ public class Game extends Activity {
                             !ArrayCell[IndexRow][IndexCol].isUsed()) {
                         active_draw = false;
                         clearCellDrawen();
-                        System.out.println("ACTIONUP ****");
-                        System.out.println("Current Cell row : " + IndexCurrentCellRow + " col :"
-                                + IndexCurrentCellCol);
                     } else {
+                        if (!isConnected(ArrayCell[IndexRow][IndexCol])) {
+                            ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.Second);
+                            redesignSecondCircle(IndexCurrentCellRow, IndexCurrentCellCol);
+                            // Mettre a jour le nombre de tubes
+                                ++game_score;
 
-                        ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.Second);
-                        redesignSecondCircle(IndexCurrentCellRow, IndexCurrentCellCol);
+                        }
                         cell_used.clear();
-                        // Mettre a jour le nombre de tubes
-                        ++ game_score;
+
                         setScore(game_score);
                     }
+                    if(isSuccessfulParty())
+                    {
+                        alert.show();
+                    }
+
                 }
                 if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() ==
                         MotionEvent.ACTION_MOVE) {
 
-                    if (cell_used.size() > 0) {
+                    if (cell_used.size() > 0 && (ArrayCell[IndexRow][IndexCol].getColor() ==
+                            Color.WHITE || ArrayCell[IndexRow][IndexCol].isUsed())) {
                         addCellUsed(ArrayCell[IndexRow][IndexCol]);
                     }
                     if (cell_used.size() > 1) {
@@ -116,12 +143,57 @@ public class Game extends Activity {
                     // Corners
 
 
-
                     return true;
                 }
                 return false;
             }
         });
+
+    }
+
+    private boolean isOver() {
+
+        for (int i = 0; i < cell_used.size() - 1; i++) {
+            if ((cell_used.get(i).getIndexRow() - cell_used.get(i + 1).getIndexRow() > 1) ||
+                    (cell_used.get(i).getIndexCol() - cell_used.get(i + 1).getIndexCol() > 1)) {
+                over = true;
+            }
+        }
+
+        return over;
+    }
+
+    private boolean isSuccessfulParty(){
+        boolean success = true;
+
+        for (int row = 0; row < size; ++row) {
+            for (int col = 0; col < size; ++col) {
+                  if( ArrayCell[row][col].getColor()== Color.WHITE)
+                      success = false;
+            }
+        }
+
+        return (success && !isOver());
+    }
+    private boolean isConnected(Cell cell) {
+        boolean connected = false;
+        if (cell.getType() != Cell.CellType.None && cell.isUsed()) {
+            for (int row = 0; row < size; ++row) {
+                for (int col = 0; col < size; ++col) {
+                    if (cell.getType() == Cell.CellType.First) {
+                        if (cell.getColor() == ArrayCell[row][col].getColor() &&
+                                ArrayCell[row][col].getType() == Cell.CellType.Second)
+                            connected = true;
+                    } else {
+                        if (cell.getColor() == ArrayCell[row][col].getColor() &&
+                                ArrayCell[row][col].getType() == Cell.CellType.First)
+                            connected = true;
+
+                    }
+                }
+            }
+        }
+        return connected;
 
     }
 
@@ -393,7 +465,7 @@ public class Game extends Activity {
             ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.None);
         }
         cell_used.clear();
-        clearTableLayout();
+//        clearTableLayout();
         BuildTable(size);
     }
 
@@ -403,12 +475,12 @@ public class Game extends Activity {
             if (sharp == Cell.Sharp.UpDown && (IndexRow != 0 && IndexRow != size - 1)) {
                 ArrayCell[IndexRow][IndexCol].setSharp(sharp);
                 ArrayCell[IndexRow][IndexCol].setColor(color_chosen);
-                clearTableLayout();
+//                clearTableLayout();
                 BuildTable(size);
             } else if (sharp == Cell.Sharp.LeftRight && (IndexCol != 0 && IndexCol != size - 1)) {
                 ArrayCell[IndexRow][IndexCol].setSharp(sharp);
                 ArrayCell[IndexRow][IndexCol].setColor(color_chosen);
-                clearTableLayout();
+//                clearTableLayout();
                 BuildTable(size);
             }
         }
