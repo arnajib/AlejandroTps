@@ -86,10 +86,13 @@ public class Game extends Activity {
                         System.out.println("Current Cell row : " + IndexCurrentCellRow + " col :"
                                 + IndexCurrentCellCol);
                     } else {
-                        // TODO : Increment score
+
                         ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.Second);
                         redesignSecondCircle(IndexCurrentCellRow, IndexCurrentCellCol);
                         cell_used.clear();
+                        // Mettre a jour le nombre de tubes
+                        ++ game_score;
+                        setScore(game_score);
                     }
                 }
                 if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() ==
@@ -113,7 +116,7 @@ public class Game extends Activity {
                     // Corners
 
 
-                    setScore(100);
+
                     return true;
                 }
                 return false;
