@@ -1,7 +1,6 @@
 package com.tp1.inf8405.flowfree;
 
 import android.app.Activity;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -76,158 +75,128 @@ public class Game extends Activity {
     * */
     public String trouverProchaineDirection(int positionDepart, int positionActuel) {
 
-        String direction = "bas";
+        String direction = "";
         if (positionDepart > positionActuel) {
             if ((positionDepart - 1) == positionActuel)
                 direction = "gauche";
-//            else if((positionDepart - 6) == positionActuel)
-//                direction = "hautDroite";
             else if ((positionDepart - 7) == positionActuel)
                 direction = "haut";
-//            else
-//                direction = "hautGauche";
         } else {
             if ((positionDepart + 1) == positionActuel)
                 direction = "droite";
-//            else if((positionDepart + 6) == positionActuel)
-//                direction = "basGauche";
             else if ((positionDepart + 7) == positionActuel)
                 direction = "bas";
-//            else
-//                direction = "basDroite";
-
         }
         return direction;
     }
 
-    public String TrouverForm(String nom) {
-        String form = "cercle";
-        if (nom.contains("cercle"))
-            form = "cercle";
-        else if (nom.contains("coin"))
-            form = "ligne";
-        else if (nom.contains("ligne"))
-            form = "ligne";
-        else
-            form = "case_vide";
+    public String TrouverDirectionImageActuelle(String nom) {
+        String dir = "nonDir";
 
-        return form;
-    }
-
-    public String TrouverDirectionImageActuelleFormOther(String nom) {
-        String dir = "pd";
-        if (nom.contains("bas"))
+        if (nom.contains("bas") && !nom.contains("verticale"))
             dir = "bas";
-        else if (nom.contains("gauche"))
+        else if (nom.contains("gauche") && !nom.contains("horizontale"))
             dir = "gauche";
-        else if (nom.contains("droite"))
+        else if (nom.contains("droite") && !nom.contains("horizontale"))
             dir = "droite";
-        else if (nom.contains("haut"))
+        else if (nom.contains("haut") && !nom.contains("verticale"))
             dir = "haut";
-        else if (nom.contains("horizontale"))
-            dir = "horizontale";
-        else if (nom.contains("verticale"))
-            dir = "verticale";
+        else if (nom.contains("horizontaledroite"))
+            dir = "horizontaledroite";
+        else if (nom.contains("horizontalegauche"))
+            dir = "horizontalegauche";
+        else if (nom.contains("verticalehaut"))
+            dir = "verticalehaut";
+        else if (nom.contains("verticalebas"))
+            dir = "verticalebas";
+        else if (nom.contains("pd"))
+            dir = "pd";
 
         return dir;
     }
 
-    public String TrouverDirectionImageActuelleFormLinge(String nom) {
-        String dir = "horizontale";
-        if (nom.contains("verticale"))
-            dir = "verticale";
-        return dir;
-    }
+    public String CreerNouveauNomPourProchaineCase(String nomNow, String nomAfter, String colorNow, String formNow, String dirNow, String dirAfter) {
+        String newNom = "nonName";
+        String nomImageCaseSuivante = trouveShape(nomAfter);
+        String dirImageSuivante = "", colorImageSuivante = "";
 
-    public String CreerNouveauNom(String nom, String ancienColor, String ancienForm, String prochaineForm, String ancienDir, String newDir) {
-        String newNom = "";
 
-        int idxColore = 0;
-//        if(newDir.equals("gauche") || newDir.equals("droite") || newDir.equals("haut") || newDir.equals("bas")) {
-        if (ancienForm == "cercle" && ancienDir == "pd") {
-            newNom = nom.replace("cercle", "ligne");
-//            idxColore = nom.lastIndexOf("_") + 1;
-//            String color = "" + (nom.charAt(idxColore));
-            if (newDir == "gauche" || newDir == "droite")
-                newNom = newNom.replace("pd", "horizontale");
-            else
-                newNom = newNom.replace("pd", "verticale");
-        } else {
-
-            newNom = nom.replace(ancienForm, prochaineForm);
-            if (prochaineForm.equals("ligne")) {
-                if ((newDir.equals("haut") || newDir.equals("bas") || newDir.equals("verticale")))
-                    newNom = newNom.replace(ancienDir, "verticale");
-                else
-                    newNom = newNom.replace(ancienDir, "horizontale");
+        /* On dessine 3 image pour la case suivante: ligne verticale, ligne horisontale, cercleQueue*/
+        /*Phase 1: on vérifie si le prochaine image est ligne verticale */
+        if ((((dirNow.equals("verticalebas") || dirNow.equals("verticalehaut") || dirNow.equals("pd")) && (dirAfter.equals("haut") || dirAfter.equals("bas"))) ||
+                ((dirNow.equals("horizontalegauche") || dirNow.equals("horizontaledroite")) && ((dirAfter.equals("haut")) || (dirAfter.equals("bas"))))) &&
+                (nomImageCaseSuivante.equals("case"))) {
+            if (dirAfter.equals("haut")) {
+                newNom = nomNow.replace(formNow, "ligne");
+                newNom = newNom.replace(dirNow, "verticalebas");
             } else {
-
-                newNom = newNom.replace(ancienDir, newDir);
+                newNom = nomNow.replace(formNow, "ligne");
+                newNom = newNom.replace(dirNow, "verticalehaut");
             }
+        }
 
+        /*Phase 1: on vérifie si le prochaine image est ligne horizontale */
+        if ((((dirNow.equals("horizontalegauche") || dirNow.equals("horizontaledroite") || dirNow.equals("pd")) && (dirAfter.equals("gauche") || dirAfter.equals("droite"))) ||
+                ((dirNow.equals("verticalebas") || dirNow.equals("verticalehaut")) && ((dirAfter.equals("gauche")) || (dirAfter.equals("droite"))))
+                        ) && nomImageCaseSuivante.equals("case")) {
+            if (dirAfter.equals("gauche")) {
+                newNom = nomNow.replace(formNow, "ligne");
+                newNom = newNom.replace(dirNow, "horizontaledroite");
+            } else {
+                newNom = nomNow.replace(formNow, "ligne");
+                newNom = newNom.replace(dirNow, "horizontalegauche");
+            }
+        }
+        /*Phase 3: on vérifie si le prochaine image est un cercle entier cad point final */
+        if (!nomImageCaseSuivante.equals("case")) {
+            dirImageSuivante = trouverDirection(nomAfter);
+            colorImageSuivante = TrouverColor(nomAfter);
+            if (nomImageCaseSuivante.equals("cercle") && dirImageSuivante.equals("pd") && colorImageSuivante.equals(colorNow)) {
+                if (dirAfter.equals("haut"))
+                    newNom = nomAfter.replace(dirImageSuivante, "bas");
+                else if (dirAfter.equals("bas"))
+                    newNom = nomAfter.replace(dirImageSuivante, "haut");
+                else if (dirAfter.equals("droite"))
+                    newNom = nomAfter.replace(dirImageSuivante, "gauche");
+                else if (dirAfter.equals("gauche"))
+                    newNom = nomAfter.replace(dirImageSuivante, "droite");
+                else if (dirNow.equals("pd"))
+                    newNom = nomAfter.replace(dirImageSuivante, dirAfter);
+            }
+        }
+        return newNom;
+    }
 
+    public String CreerNouveauNomPourCaseActuelle(String nom, String colorAfter, String formNow, String formAfter, String dirNow, String dirAfter) {
+        String newNom = "nonName";
+        String colorNow = TrouverColor(nom);
+
+        /* Dans 2 cas, l'image de la case actuelle change, lorsqu'on débute a partir d'un cercle entier ou lorsqu'on tourne!* /
+
+        /* Etape 1: On vérifie si on a débuté une trace a partir d'un cercle */
+        if (formNow.equals("cercle") && dirNow.equals("pd") && (colorNow.equals(colorAfter) || colorAfter.equals("nonColor") )) {
+            newNom = nom.replace("pd", dirAfter);
+        /* Etape 2: on verifie si on tourne, si oui on essaie de trouver le nom de coin*/
+        } else if (formNow.equals("ligne") && formAfter.equals("coin")) {
+
+            newNom = nom.replace(formNow, formAfter);
+            if ((dirNow.equals("horizontalegauche") && dirAfter.equals("bas")) || (dirNow.equals("verticalebas") && dirAfter.equals("gauche"))) {
+                newNom = newNom.replace(dirNow, "bas");
+            } else if ((dirNow.equals("verticalebas") && dirAfter.equals("droite")) || (dirNow.equals("horizontaledroite") && dirAfter.equals("bas"))) {
+                newNom = newNom.replace(dirNow, "droite");
+            } else if ((dirNow.equals("horizontaledroite") && dirAfter.equals("haut")) || (dirNow.equals("verticalehaut") && dirAfter.equals("droite"))) {
+                newNom = newNom.replace(dirNow, "haut");
+            } else if ((dirNow.equals("verticalehaut") && dirAfter.equals("gauche")) || (dirNow.equals("horizontalegauche") && dirAfter.equals("haut"))) {
+                newNom = newNom.replace(dirNow, "gauche");
+            }
         }
 
 
         return newNom;
     }
 
-    public String TrouverImageSuivante(String nom) {  // com.tp1.inf8405.flowfree:drawable/blue
-        String form = "linge";
-        String dir = "";
-        String newNom = "";
-
-//        switch (trouveCouleur(nom))
-//        {
-//            case bleu:
-//                form = TrouverForm(nom);
-//                if(form == "ligne")
-//                    dir = TrouverDirectionImageActuelleFormLinge(nom);
-//                else
-//                    dir = TrouverDirectionImageActuelleFormOther(nom);
-//                newNom = CreerNouveauNom(nom, "b", form, dir);
-//
-//                break;
-//            case gris:
-//                form = TrouverForm(nom);
-//                break;
-//            case jaune:
-//                form = TrouverForm(nom);
-//                break;
-//            case kaki:
-//                form = TrouverForm(nom);
-//                break;
-//            case marron:
-//                form = TrouverForm(nom);
-//                break;
-//            case orange:
-//                form = TrouverForm(nom);
-//                break;
-//            case pistache:
-//                form = TrouverForm(nom);
-//                break;
-//            case rouge:
-//                form = TrouverForm(nom);
-//                break;
-//            case vert:
-//                form = TrouverForm(nom);
-//                break;
-//            case zblanc:
-//
-//                break;
-//        }
-        return nom;
-    }
-
-    public String findColor(String nom) {
-        if (nom.endsWith("green"))
-            nom = nom.replace("green", "ligne_horizontale_v");
-        return nom;
-    }
-
     public String TrouverColor(String nomImageActuellel) {
-        String couleur = "";
-        // char c = SplitStr(nomImageActuellel);
+        String couleur = "nonColor";
         if (nomImageActuellel.endsWith("b"))
             couleur = "b";
         else if (nomImageActuellel.endsWith("g"))
@@ -246,75 +215,49 @@ public class Game extends Activity {
             couleur = "r";
         else if (nomImageActuellel.endsWith("v"))
             couleur = "v";
-
         return couleur;
     }
 
-    public String trouveShape(String nomCaseActuelle) {
-        String formActuelle = "";
-        int idD = nomCaseActuelle.indexOf("drawable");
-        int idF = nomCaseActuelle.indexOf("_");
-        formActuelle = nomCaseActuelle.substring(idD + 9, idF);
-
-
-        return formActuelle;
+    public String trouveShape(String nomCase) {
+        String form = "";
+        int idD = nomCase.indexOf("drawable");
+        int idF = nomCase.indexOf("_");
+        form = nomCase.substring(idD + 9, idF);
+        return form;
     }
 
-    public String BuildPathImage() {
-        String path = "/src/drawable/cercle_vert.png";
-
-        return path;
-    }
-
-    public void trouveImageConvenable(int positionDepart, int positionActuel) {
-
-//        if(positionDepart != positionActuel){
-//            switch (trouverProchaineDirection(positionDepart, positionActuel)) {
-//                case:
-//            }
-//
-//        }
-        return;
-
-    }
-
-    public boolean TestSiCaseDepartEstCercle(String nom) {
-        boolean reponse = false;
-        if (TrouverForm(nom) == "cercle" && TrouverDirectionImageActuelleFormOther(nom) == "pd")
-            reponse = true;
-        return reponse;
-    }
-
-    public String trouverActuelleDirection(String nomCaseActuelle) { // com.tp1.inf8405.flowfree:drawable/ligne_verticale_g
+    public String trouverDirection(String nomCase) { // com.tp1.inf8405.flowfree:drawable/ligne_verticale_g
         String dirCaseActuelle = "";
         String temp = "";
-        int idD = nomCaseActuelle.indexOf("_");
-        int idF = nomCaseActuelle.indexOf("_", idD + 1);
-        temp = nomCaseActuelle.substring(idD + 1, idF);
-        if (temp.equals("gauche"))
-            dirCaseActuelle = "gauche";
-        else if (temp.equals("haut"))
-            dirCaseActuelle = "haut";
-        else if (temp.equals("droite"))
-            dirCaseActuelle = "droite";
-        else if (temp.equals("verticale"))
-            dirCaseActuelle = "verticale";
-        else
-            dirCaseActuelle = "horizontale";
+        int idD = nomCase.indexOf("_");
+        int idF = nomCase.indexOf("_", idD + 1);
+        temp = nomCase.substring(idD + 1, idF);
+        if (temp.equals("gauche")) dirCaseActuelle = "gauche";
+        else if (temp.equals("haut")) dirCaseActuelle = "haut";
+        else if (temp.equals("droite")) dirCaseActuelle = "droite";
+        else if (temp.equals("verticalehaut")) dirCaseActuelle = "verticalehaut";
+        else if (temp.equals("horizontalegauche")) dirCaseActuelle = "horizontalegauche";
+        else if (temp.equals("verticalebas")) dirCaseActuelle = "verticalebas";
+        else if (temp.equals("horizontaledroite")) dirCaseActuelle = "horizontaledroite";
+        else dirCaseActuelle = "pd";
+
         return dirCaseActuelle;
     }
 
-    public String trouveProchaineForm(String nomCaseActeulle, String actuelleForm, String prochaindir, String acuelleDir) {
-        String prochaineForm = "";
-        if (actuelleForm.equals("ligne")) {
-            if ((prochaindir.equals("verticale") || prochaindir.equals("haut") || prochaindir.equals("bas")) && (acuelleDir.equals("verticale") || acuelleDir.equals("haut") || acuelleDir.equals("bas"))) {
+    public String trouveProchaineForm(String nomCaseActeulle, String nomImagCaseSuivante, String formNow, String dirNow, String dirAfter) {
+        String prochaineForm = "cercle";
+        if (formNow.equals("ligne")) {
+            if ((dirAfter.equals("verticalehaut") || dirAfter.equals("verticalebas") || dirAfter.equals("haut") || dirAfter.equals("bas")) && ((dirNow.equals("verticalehaut") || dirNow.equals("verticalebas") || dirNow.equals("haut") || dirNow.equals("bas")))) {
+                prochaineForm = "ligne";
+            } else if ((dirAfter.equals("horizontalegauche") || dirAfter.equals("horizontaledroite") || dirAfter.equals("gauche") || dirAfter.equals("droite")) && ((dirNow.equals("horizontalegauche") || dirNow.equals("horizontaledroite") || dirNow.equals("gauche") || dirNow.equals("droite")))) {
                 prochaineForm = "ligne";
             } else
                 prochaineForm = "coin";
         }
-
-
         return prochaineForm;
+    }
+    public void effacerLeResteDeTrace(){
+
     }
 
     public void addListenerToGrid() {
@@ -324,29 +267,20 @@ public class Game extends Activity {
                 int action = me.getActionMasked();
                 float currentXPosition;
                 float currentYPosition;
-                String color = "";
-                String acuelleDir = "";
-                String prochaindir = "";
+                String colorNow = "";
+                String colorAfter = "";
+                String dirNow = "";
+                String dirAfter = "";
                 String newImageNameCaseSuivante = "";
                 String newImageNameCaseActuelle = "";
                 String nomCaseActeulle = "";
-                String actuelleForm = "";
-                int imageResourceIdentifierCaseActuelle = 0;
-                int newImageIdCaseActuelle = 0;
-
+                String formNow = "";
                 int imageResourceIdentifier = 0;
                 int newImageId = 0;
-                String prochaineForm = "";
-                String newDireCaseActuelle = "";
+                String formAfter = "";
+                String nomimageCaseSuivante = "";
+                Integer idCaseSuivante;
 
-
-//                if (me.getAction() == MotionEvent.ACTION_DOWN) {
-//                    //Toast.makeText(Game.this, " Touch Down: " + position,Toast.LENGTH_SHORT).show();
-//                }else if (me.getAction() == MotionEvent.ACTION_MOVE){
-//                    //Toast.makeText(Game.this, " Moving: " + position,Toast.LENGTH_SHORT).show();
-//                }else if (me.getAction() == MotionEvent.ACTION_UP){
-//                    //Toast.makeText(Game.this, " Up: " + position,Toast.LENGTH_SHORT).show();
-//                }
                 switch (me.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         currentXPosition = me.getX();
@@ -359,76 +293,43 @@ public class Game extends Activity {
                         currentXPosition = me.getX();
                         currentYPosition = me.getY();
                         posTouchMove = gridview.pointToPosition((int) currentXPosition, (int) currentYPosition);
+
+                        /* On teste si on a changé de case */
                         if (posTouchMove != posTouchDown) {
+
+                            /* Ici on trouve le nom de l'image de la case actuelle cad la case d'où on vient de sortir et tous ses dépandants */
                             Integer idCaseActuelle = new Integer((int) im.getItem(posTouchDown));
                             nomCaseActeulle = getResources().getResourceName(idCaseActuelle); // com.tp1.inf8405.flowfree:drawable/...
-                            if (TestSiCaseDepartEstCercle(nomCaseActeulle)) {
+                            colorNow = TrouverColor(nomCaseActeulle);
+                            formNow = trouveShape(nomCaseActeulle);
+                            dirNow = TrouverDirectionImageActuelle(nomCaseActeulle);
+                            dirAfter = trouverProchaineDirection(posTouchDown, posTouchMove);
 
 
-                                color = TrouverColor(nomCaseActeulle);
-                                prochaindir = trouverProchaineDirection(posTouchDown, posTouchMove);
-                                /* On change d'abord l'image de la case actuelle*/
-                                newImageNameCaseActuelle = nomCaseActeulle.replace("pd", prochaindir);
-                                imageResourceIdentifierCaseActuelle = getResources().getIdentifier(newImageNameCaseActuelle, "drawable", getPackageName());
-                                newImageIdCaseActuelle = im.getItemPosition(imageResourceIdentifierCaseActuelle);
-                                im.setItem(posTouchDown, newImageIdCaseActuelle);
-                                /* On change l'image de la case suivante*/
-                                newImageNameCaseSuivante = CreerNouveauNom(nomCaseActeulle, color, "cercle", "", "pd", prochaindir);
+                            /* Ici on trouve d'abord nom de l'image de la case suivante cad la case où on vient de rentrer */
+                            idCaseSuivante = new Integer((int) im.getItem(posTouchMove));
+                            nomimageCaseSuivante = getResources().getResourceName(idCaseSuivante); // com.tp1.inf8405.flowfree:drawable/..
+                            colorAfter = TrouverColor(nomimageCaseSuivante);
+                            formAfter = trouveProchaineForm(nomCaseActeulle, nomimageCaseSuivante, formNow, dirNow, dirAfter);
+
+                            /* Ici on change l'image de la case actuelle */
+
+                            newImageNameCaseActuelle = CreerNouveauNomPourCaseActuelle(nomCaseActeulle, colorAfter, formNow, formAfter, dirNow, dirAfter);
+                            newImageNameCaseSuivante = CreerNouveauNomPourProchaineCase(nomCaseActeulle, nomimageCaseSuivante, colorNow, formNow, dirNow, dirAfter);
+                            if (!newImageNameCaseActuelle.equals("nonName")) {
+                                imageResourceIdentifier = getResources().getIdentifier(newImageNameCaseActuelle, "drawable", getPackageName());
+                                newImageId = im.getItemPosition(imageResourceIdentifier);
+                                im.setItem(posTouchDown, newImageId);
+                            }
+                            /* Ici on change l'image de la case suivante */
+                            if (!newImageNameCaseSuivante.equals("nonName")) {
                                 imageResourceIdentifier = getResources().getIdentifier(newImageNameCaseSuivante, "drawable", getPackageName());
                                 newImageId = im.getItemPosition(imageResourceIdentifier);
-                                //im.setItemInTabPrincipal(posTouchUp, posTouchDown);
-                                // im.setItemInteger(posTouchUp, help);
                                 im.setItem(posTouchMove, newImageId);
-
-                                im.notifyDataSetChanged();
-                                posTouchDown = posTouchMove;
-                            } else {
-                                color = TrouverColor(nomCaseActeulle);
-                                prochaindir = trouverProchaineDirection(posTouchDown, posTouchMove);
-                                acuelleDir = trouverActuelleDirection(nomCaseActeulle);
-                                actuelleForm = trouveShape(nomCaseActeulle);
-//                                if(actuelleForm.equals("ligne") && ((acuelleDir.equals("verticale") && (prochaindir.equals("gauche")||prochaindir.equals("droite")))||
-//                                                                    (acuelleDir.equals("horizontale") && (prochaindir.equals("bas")||prochaindir.equals("haut")))))
-
-                                prochaineForm = trouveProchaineForm(nomCaseActeulle, actuelleForm, prochaindir, acuelleDir);
-                                if (prochaineForm.equals("coin") && actuelleForm.equals("ligne")) {
-
-
-                                    newImageNameCaseSuivante = CreerNouveauNom(nomCaseActeulle, color, actuelleForm, prochaineForm, acuelleDir, prochaindir);
-                                    imageResourceIdentifier = getResources().getIdentifier(newImageNameCaseSuivante, "drawable", getPackageName());
-                                    newImageId = im.getItemPosition(imageResourceIdentifier);
-                                    im.setItem(posTouchDown, newImageId);
-
-                                    /* On change l'image de la case suivante*/
-                                    if (acuelleDir.equals("verticale"))
-                                        newImageNameCaseSuivante = CreerNouveauNom(nomCaseActeulle, color, actuelleForm, "ligne", acuelleDir, "horizontale");
-                                    else
-                                        newImageNameCaseSuivante = CreerNouveauNom(nomCaseActeulle, color, actuelleForm, "ligne", acuelleDir, "verticale");
-                                    imageResourceIdentifier = getResources().getIdentifier(newImageNameCaseSuivante, "drawable", getPackageName());
-                                    newImageId = im.getItemPosition(imageResourceIdentifier);
-                                    //im.setItemInTabPrincipal(posTouchUp, posTouchDown);
-                                    // im.setItemInteger(posTouchUp, help);
-                                    im.setItem(posTouchMove, newImageId);
-                                    im.notifyDataSetChanged();
-                                    posTouchDown = posTouchMove;
-                                } else {
-
-                                    newImageNameCaseSuivante = CreerNouveauNom(nomCaseActeulle, color, actuelleForm, prochaineForm, acuelleDir, prochaindir);
-                                    imageResourceIdentifier = getResources().getIdentifier(newImageNameCaseSuivante, "drawable", getPackageName());
-                                    newImageId = im.getItemPosition(imageResourceIdentifier);
-                                    im.setItem(posTouchMove, newImageId);
-
-
-//                                String matchImage = findColor(nomCaseActeulle);
-//                                imageResourceIdentifier = getResources().getIdentifier(matchImage, "drawable", getPackageName());
-//                                newImageId = im.getItemPosition(imageResourceIdentifier);
-                                    //im.setItemInTabPrincipal(posTouchUp, posTouchDown);
-                                    // im.setItemInteger(posTouchUp, help);
-                                    im.setItem(posTouchMove, newImageId);
-                                    im.notifyDataSetChanged();
-                                    posTouchDown = posTouchMove;
-                                }
                             }
+                            /* Ici on met a jour le tableau des cases*/
+                            im.notifyDataSetChanged();
+                            posTouchDown = posTouchMove;
 
                         }
                         break;
