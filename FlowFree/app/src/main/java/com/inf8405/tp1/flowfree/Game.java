@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,7 @@ public class Game extends Activity {
 
     TableLayout table_game;
     int size = 8;
-    int level = 3;
+    int level = 2;
     Cell[][] ArrayCell; // Tableau qui contient les cellules du jeu
     ArrayList<Cell> cell_used = new ArrayList<>();
     int game_score = 0;
@@ -28,7 +27,7 @@ public class Game extends Activity {
     int color_chosen;
     int IndexPreviousCellRow = 0;
     int IndexPreviousCellCol = 0;
-    Cell previous_cell ;
+    Cell previous_cell;
     Cell current_cell;
 
     @Override
@@ -52,9 +51,8 @@ public class Game extends Activity {
                 int cellHeight = table_game.getMeasuredHeight() / Game.this.size;
 
                 // position de la case appuyee
-                int IndexCol = (int) event.getX() / cellWidth;
-                int IndexRow = (int) event.getY() / cellHeight;
-
+                int IndexRow = (int) event.getY() / cellWidth;
+                int IndexCol = (int) event.getX() / cellHeight;
                 //
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (ArrayCell[IndexRow][IndexCol].getColor() != Color.WHITE &&
@@ -63,7 +61,9 @@ public class Game extends Activity {
                         IndexPreviousCellCol = IndexCol;
                         active_draw = true;
                         color_chosen = ArrayCell[IndexRow][IndexCol].getColor();
+
                         ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.First);
+
                         addCellUsed(ArrayCell[IndexRow][IndexCol]);
                         previous_cell = cell_used.get(cell_used.size() - 1);
                         current_cell = cell_used.get(cell_used.size() - 1);
@@ -72,18 +72,22 @@ public class Game extends Activity {
                 }
                 if (event.getAction() == MotionEvent.ACTION_UP) {
 //                    color_chosen =  Color.WHITE;
-                    if (ArrayCell[IndexRow][IndexCol].getColor() != color_chosen) {
+                    if (ArrayCell[IndexRow][IndexCol].getColor() != color_chosen ||
+                            !ArrayCell[IndexRow][IndexCol].isUsed()) {
                         active_draw = false;
                         clearCellDrawen();
                         System.out.println("ACTIONUP ****");
                     } else {
                         // TODO : Increment score
                         ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.Second);
+                        cell_used.clear();
                     }
                 }
                 if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() ==
                         MotionEvent.ACTION_MOVE) {
+                    if (cell_used.size() > 3) {
 
+                    }
                     if (cell_used.size() > 0) {
                         addCellUsed(ArrayCell[IndexRow][IndexCol]);
                     }
@@ -93,67 +97,101 @@ public class Game extends Activity {
                         IndexPreviousCellRow = previous_cell.getIndexRow();
                         IndexPreviousCellCol = previous_cell.getIndexCol();
 
-                        System.out.println("previous_cell : X " + previous_cell.getIndexRow() + " -" +
-                                " Y " + previous_cell.getIndexCol());
-                        System.out.println("current_cell : X " + current_cell.getIndexRow() + " - Y" +
-                                " " + current_cell.getIndexCol());
+//                        System.out.println("previous_cell : X " + previous_cell.getIndexRow() +
+// " -" +
+//                                " Y " + previous_cell.getIndexCol());
+//                        System.out.println("current_cell : X " + current_cell.getIndexRow() + "
+// - Y" +
+//                                " " + current_cell.getIndexCol());
                     }
-// From Down to Up
+                    // From Down to Up
                     if (IndexPreviousCellRow > IndexRow && IndexPreviousCellCol == IndexCol) {
-                        drawTube(IndexRow, IndexCol,  color_chosen, active_draw, Cell.Sharp.UpDown);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() && ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp.CircleUp);
+                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
+                                active_draw, Cell.Sharp.UpDown);
+                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
+                                        == Cell.Sharp.Circle)
+                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
+                                    .Sharp.CircleUp);
                     }
 
                     // From Up to Down
                     if (IndexPreviousCellRow < IndexRow && IndexPreviousCellCol == IndexCol) {
-                        drawTube(IndexRow, IndexCol, color_chosen, active_draw, Cell.Sharp.UpDown);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() && ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp.CircleDown);
+                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
+                                active_draw, Cell.Sharp.UpDown);
+                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
+                                        == Cell.Sharp.Circle)
+                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
+                                    .Sharp.CircleDown);
                     }
 
                     // From Right to Left
                     if (IndexPreviousCellRow == IndexRow && IndexPreviousCellCol > IndexCol) {
-                        drawTube(IndexRow, IndexCol, color_chosen, active_draw, Cell.Sharp.LeftRight);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() && ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp.CircleLeft);
+                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
+                                active_draw, Cell.Sharp.LeftRight);
+                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
+                                        == Cell.Sharp.Circle)
+                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
+                                    .Sharp.CircleLeft);
                     }
 
                     // From Left to Right
                     if (IndexPreviousCellRow == IndexRow && IndexPreviousCellCol < IndexCol) {
-                        drawTube(IndexRow, IndexCol, color_chosen, active_draw, Cell.Sharp.LeftRight);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() && ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp.CircleRight);
+                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
+                                active_draw, Cell.Sharp.LeftRight);
+                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
+                                        == Cell.Sharp.Circle)
+                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
+                                    .Sharp.CircleRight);
                     }
 
                     // Corners
 
                     // From Down to Right
                     if (IndexPreviousCellRow > IndexRow && IndexPreviousCellCol < IndexCol) {
-                        drawTube(IndexRow, IndexCol,  color_chosen, active_draw, Cell.Sharp.RightDown);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() && ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp.CircleUp);
+                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
+                                active_draw, Cell.Sharp.RightDown);
+                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
+                                        == Cell.Sharp.Circle)
+                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
+                                    .Sharp.CircleUp);
                     }
 
                     // From Up to Right
                     if (IndexPreviousCellRow < IndexRow && IndexPreviousCellCol < IndexCol) {
-                        drawTube(IndexRow, IndexCol,  color_chosen, active_draw, Cell.Sharp.RightUp);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() && ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp.CircleDown);
+                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
+                                active_draw, Cell.Sharp.RightUp);
+                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
+                                        == Cell.Sharp.Circle)
+                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
+                                    .Sharp.CircleDown);
                     }
 
                     // From Down to Left
                     if (IndexPreviousCellRow > IndexRow && IndexPreviousCellCol > IndexCol) {
-                        drawTube(IndexRow, IndexCol,  color_chosen, active_draw, Cell.Sharp.LeftDown);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() && ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp.CircleLeft);
+                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
+                                active_draw, Cell.Sharp.LeftDown);
+                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
+                                        == Cell.Sharp.Circle)
+                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
+                                    .Sharp.CircleLeft);
                     }
 
                     // From Up to Left
                     if (IndexPreviousCellRow < IndexRow && IndexPreviousCellCol > IndexCol) {
-                        drawTube(IndexRow, IndexCol, color_chosen, active_draw, Cell.Sharp.LeftUp);
-                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() && ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp() == Cell.Sharp.Circle)
-                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell.Sharp.CircleRight);
+                        drawTube(IndexPreviousCellRow, IndexPreviousCellCol, color_chosen,
+                                active_draw, Cell.Sharp.LeftUp);
+                        if (ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].isUsed() &&
+                                ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].getSharp()
+                                        == Cell.Sharp.Circle)
+                            ArrayCell[IndexPreviousCellRow][IndexPreviousCellCol].setSharp(Cell
+                                    .Sharp.CircleRight);
                     }
                     setScore(100);
                     return true;
@@ -167,22 +205,22 @@ public class Game extends Activity {
     private void addCellUsed(Cell cell_to_add) {
         boolean exist = false;
         for (Cell item : cell_used) {
-            if (item.getIndexRow() == cell_to_add.getIndexRow() && item.getIndexCol() == cell_to_add.getIndexCol()) {
+            if (item.getIndexRow() == cell_to_add.getIndexRow() && item.getIndexCol() ==
+                    cell_to_add.getIndexCol()) {
                 exist = true;
 
             }
         }
         if (!exist) {
             cell_used.add(cell_to_add);
-            System.out.println("Size :" + cell_used.size());
-
         }
     }
 
     private void clearCellDrawen() {
+        System.out.println("Size :" + cell_used.size());
         for (Cell item : cell_used) {
-            int IndexRow = item.getIndexCol();
-            int IndexCol = item.getIndexRow();
+            int IndexCol = item.getIndexCol();
+            int IndexRow = item.getIndexRow();
             if (!(ArrayCell[IndexRow][IndexCol].getSharp() == Cell.Sharp.Circle ||
                     ArrayCell[IndexRow][IndexCol].getSharp() == Cell.Sharp.CircleUp ||
                     ArrayCell[IndexRow][IndexCol].getSharp() == Cell.Sharp.CircleDown ||
@@ -193,6 +231,11 @@ public class Game extends Activity {
             }
             ArrayCell[IndexRow][IndexCol].setSharp(Cell.Sharp.Circle);
             ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.None);
+            System.out.println("Array : Row " + IndexRow + " -" +
+                    " Col " + IndexCol);
+            System.out.println("get : Row " + ArrayCell[IndexRow][IndexCol].getIndexRow() + " -" +
+                    " Col " + ArrayCell[IndexRow][IndexCol].getIndexCol());
+
         }
         cell_used.clear();
         clearTableLayout();
@@ -231,9 +274,10 @@ public class Game extends Activity {
             TableRow row = new TableRow(this);
             row.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams
                     .WRAP_CONTENT));
-            for (int j = 0; j < size; j++) {
-                row.addView(ArrayCell[i][j]);
+            for (int col = 0; col < size; col++) {
+                row.addView(ArrayCell[i][col]);
             }
+
             table_game.addView(row);
         }
     }
@@ -252,97 +296,101 @@ public class Game extends Activity {
 
         ArrayCell = new Cell[size][size];
         // Remplir le tableau
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
                 // Tables de size == 7
                 if (size == 7) {
                     // Level 1
                     if (level == 1) {
-                        if ((i == 1 && j == 0) || (i == 6 && j == 0)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), i, j,
+                        if ((row == 1 && col == 0) || (row == 6 && col == 0)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), row,
+                                    col, true);
+                        } else if ((row == 2 && col == 2) || (row == 3 && col == 4)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Red), row, col,
                                     true);
-                        } else if ((i == 2 && j == 2) || (i == 3 && j == 4)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Red), i, j, true);
-                        } else if ((i == 4 && j == 2) || (i == 5 && j == 4)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Yellow), i, j,
-                                    true);
-                        } else if ((i == 4 && j == 4) || (i == 5 && j == 1)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Orange), i, j,
-                                    true);
-                        } else if ((i == 5 && j == 0) || (i == 5 && j == 5)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), i, j,
-                                    true);
+                        } else if ((row == 4 && col == 2) || (row == 5 && col == 4)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Yellow), row,
+                                    col, true);
+                        } else if ((row == 4 && col == 4) || (row == 5 && col == 1)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Orange), row,
+                                    col, true);
+                        } else if ((row == 5 && col == 0) || (row == 5 && col == 5)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), row,
+                                    col, true);
                         } else {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, Color.WHITE, i, j, false);
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, Color.WHITE, row, col, false);
                         }
                     }
                     // Level 2
                     if (level == 2) {
-                        if ((i == 5 && j == 0) || (i == 3 && j == 6)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), i, j,
+                        if ((row == 5 && col == 0) || (row == 3 && col == 6)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), row,
+                                    col, true);
+                        } else if ((row == 4 && col == 6) || (row == 6 && col == 6)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Red), row, col,
                                     true);
-                        } else if ((i == 4 && j == 6) || (i == 6 && j == 6)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Red), i, j, true);
-                        } else if ((i == 5 && j == 1) || (i == 2 && j == 6)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Yellow), i, j,
-                                    true);
-                        } else if ((i == 5 && j == 3) || (i == 2 && j == 5)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Orange), i, j,
-                                    true);
-                        } else if ((i == 4 && j == 5) || (i == 6 && j == 5)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), i, j,
-                                    true);
-                        } else if ((i == 1 && j == 1) || (i == 5 && j == 2)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                        } else if ((row == 5 && col == 1) || (row == 2 && col == 6)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Yellow), row,
+                                    col, true);
+                        } else if ((row == 5 && col == 3) || (row == 2 && col == 5)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Orange), row,
+                                    col, true);
+                        } else if ((row == 4 && col == 5) || (row == 6 && col == 5)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), row,
+                                    col, true);
+                        } else if ((row == 1 && col == 1) || (row == 5 && col == 2)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
                                     .None, ContextCompat.getColor(this, R.color.PaleTurquoise),
-                                    i, j, true);
-                        } else if ((i == 2 && j == 2) || (i == 1 && j == 5)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Gray), i, j, true);
+                                    row, col, true);
+                        } else if ((row == 2 && col == 2) || (row == 1 && col == 5)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Gray), row, col,
+                                    true);
                         } else {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, Color.WHITE, i, j, false);
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, Color.WHITE, row, col, false);
                         }
                     }
                     // Level 3
                     if (level == 3) {
-                        if ((i == 5 && j == 0) || (i == 4 && j == 3)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), i, j,
+                        if ((row == 5 && col == 0) || (row == 4 && col == 3)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), row,
+                                    col, true);
+                        } else if ((row == 5 && col == 3) || (row == 6 && col == 6)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Red), row, col,
                                     true);
-                        } else if ((i == 5 && j == 3) || (i == 6 && j == 6)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Red), i, j, true);
-                        } else if ((i == 2 && j == 2) || (i == 2 && j == 4)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Yellow), i, j,
-                                    true);
-                        } else if ((i == 5 && j == 1) || (i == 5 && j == 4)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Orange), i, j,
-                                    true);
-                        } else if ((i == 3 && j == 1) || (i == 4 && j == 4)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), i, j,
-                                    true);
-                        } else if ((i == 2 && j == 1) || (i == 4 && j == 5)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                        } else if ((row == 2 && col == 2) || (row == 2 && col == 4)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Yellow), row,
+                                    col, true);
+                        } else if ((row == 5 && col == 1) || (row == 5 && col == 4)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Orange), row,
+                                    col, true);
+                        } else if ((row == 3 && col == 1) || (row == 4 && col == 4)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), row,
+                                    col, true);
+                        } else if ((row == 2 && col == 1) || (row == 4 && col == 5)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
                                     .None, ContextCompat.getColor(this, R.color.PaleTurquoise),
-                                    i, j, true);
+                                    row, col, true);
                         } else {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, Color.WHITE, i, j, false);
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, Color.WHITE, row, col, false);
                         }
                     }
                 }
@@ -352,115 +400,119 @@ public class Game extends Activity {
                 if (size == 8) {
                     // Level 1
                     if (level == 1) {
-                        if ((i == 1 && j == 5) || (i == 1 && j == 7)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), i, j,
+                        if ((row == 1 && col == 5) || (row == 1 && col == 7)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), row,
+                                    col, true);
+                        } else if ((row == 0 && col == 4) || (row == 5 && col == 4)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Red), row, col,
                                     true);
-                        } else if ((i == 0 && j == 4) || (i == 5 && j == 4)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Red), i, j, true);
-                        } else if ((i == 3 && j == 0) || (i == 3 && j == 6)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Yellow), i, j,
-                                    true);
-                        } else if ((i == 4 && j == 3) || (i == 5 && j == 2)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Orange), i, j,
-                                    true);
-                        } else if ((i == 1 && j == 0) || (i == 2 && j == 2)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), i, j,
-                                    true);
-                        } else if ((i == 0 && j == 0) || (i == 2 && j == 0)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Maroon), i, j,
-                                    true);
-                        } else if ((i == 2 && j == 7) || (i == 7 && j == 7)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                        } else if ((row == 3 && col == 0) || (row == 3 && col == 6)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Yellow), row,
+                                    col, true);
+                        } else if ((row == 4 && col == 3) || (row == 5 && col == 2)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Orange), row,
+                                    col, true);
+                        } else if ((row == 1 && col == 0) || (row == 2 && col == 2)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), row,
+                                    col, true);
+                        } else if ((row == 0 && col == 0) || (row == 2 && col == 0)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Maroon), row,
+                                    col, true);
+                        } else if ((row == 2 && col == 7) || (row == 7 && col == 7)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
                                     .None, ContextCompat.getColor(this, R.color.PaleTurquoise),
-                                    i, j, true);
-                        } else if ((i == 1 && j == 6) || (i == 2 && j == 5)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Gray), i, j, true);
-                        } else if ((i == 3 && j == 5) || (i == 4 && j == 2)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.PaleGreen), i, j,
+                                    row, col, true);
+                        } else if ((row == 1 && col == 6) || (row == 2 && col == 5)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Gray), row, col,
                                     true);
+                        } else if ((row == 3 && col == 5) || (row == 4 && col == 2)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.PaleGreen), row,
+                                    col, true);
                         } else {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, Color.WHITE, i, j, false);
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, Color.WHITE, row, col, false);
                         }
                     }
                     // Level 2
                     if (level == 2) {
-                        if ((i == 6 && j == 2) || (i == 5 && j == 5)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), i, j,
+                        if ((row == 6 && col == 2) || (row == 5 && col == 5)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), row,
+                                    col, true);
+                        } else if ((row == 6 && col == 1) || (row == 4 && col == 3)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Red), row, col,
                                     true);
-                        } else if ((i == 6 && j == 1) || (i == 4 && j == 3)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Red), i, j, true);
-                        } else if ((i == 0 && j == 5) || (i == 3 && j == 5)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Yellow), i, j,
-                                    true);
-                        } else if ((i == 1 && j == 4) || (i == 6 && j == 3)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Orange), i, j,
-                                    true);
-                        } else if ((i == 1 && j == 6) || (i == 3 && j == 6)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), i, j,
-                                    true);
-                        } else if ((i == 0 && j == 4) || (i == 0 && j == 6)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                        } else if ((row == 0 && col == 5) || (row == 3 && col == 5)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Yellow), row,
+                                    col, true);
+                        } else if ((row == 1 && col == 4) || (row == 6 && col == 3)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Orange), row,
+                                    col, true);
+                        } else if ((row == 1 && col == 6) || (row == 3 && col == 6)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), row,
+                                    col, true);
+                        } else if ((row == 0 && col == 4) || (row == 0 && col == 6)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
                                     .None, ContextCompat.getColor(this, R.color.PaleTurquoise),
-                                    i, j, true);
-                        } else if ((i == 2 && j == 2) || (i == 4 && j == 2)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.PaleGreen), i, j,
-                                    true);
+                                    row, col, true);
+                        } else if ((row == 2 && col == 2) || (row == 4 && col == 2)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.PaleGreen), row,
+                                    col, true);
                         } else {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, Color.WHITE, i, j, false);
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, Color.WHITE, row, col, false);
                         }
                     }
                     // Level 3
                     if (level == 3) {
-                        if ((i == 1 && j == 1) || (i == 6 && j == 2)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), i, j,
+                        if ((row == 1 && col == 1) || (row == 6 && col == 2)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.RoyalBlue), row,
+                                    col, true);
+                        } else if ((row == 5 && col == 2) || (row == 4 && col == 4)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Red), row, col,
                                     true);
-                        } else if ((i == 5 && j == 2) || (i == 4 && j == 4)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Red), i, j, true);
-                        } else if ((i == 1 && j == 5) || (i == 5 && j == 3)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Yellow), i, j,
-                                    true);
-                        } else if ((i == 1 && j == 3) || (i == 3 && j == 4)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Orange), i, j,
-                                    true);
-                        } else if ((i == 3 && j == 0) || (i == 0 && j == 3)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), i, j,
-                                    true);
-                        } else if ((i == 1 && j == 2) || (i == 3 && j == 3)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.Maroon), i, j,
-                                    true);
-                        } else if ((i == 4 && j == 0) || (i == 1 && j == 4)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                        } else if ((row == 1 && col == 5) || (row == 5 && col == 3)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Yellow), row,
+                                    col, true);
+                        } else if ((row == 1 && col == 3) || (row == 3 && col == 4)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Orange), row,
+                                    col, true);
+                        } else if ((row == 3 && col == 0) || (row == 0 && col == 3)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.LimeGreen), row,
+                                    col, true);
+                        } else if ((row == 1 && col == 2) || (row == 3 && col == 3)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.Maroon), row,
+                                    col, true);
+                        } else if ((row == 4 && col == 0) || (row == 1 && col == 4)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
                                     .None, ContextCompat.getColor(this, R.color.PaleTurquoise),
-                                    i, j, true);
-                        } else if ((i == 2 && j == 5) || (i == 5 && j == 4)) {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, ContextCompat.getColor(this, R.color.PaleGreen), i, j,
-                                    true);
+                                    row, col, true);
+                        } else if ((row == 2 && col == 5) || (row == 5 && col == 4)) {
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, ContextCompat.getColor(this, R.color.PaleGreen), row,
+                                    col, true);
                         } else {
-                            ArrayCell[i][j] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
-                                    .None, Color.WHITE, i, j, false);
+                            ArrayCell[row][col] = new Cell(this, Cell.Sharp.Circle, Cell.CellType
+                                    .None, Color.WHITE, row, col, false);
                         }
                     }
                 }
