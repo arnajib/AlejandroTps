@@ -6,15 +6,15 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import java.util.ArrayList;
 
@@ -23,8 +23,8 @@ public class Game extends Activity {
 
     TableLayout table_game;
     // TODO: remplacer size et level a partir de level Activity
-    int size = 8;
-    int level = 3;
+    int size = 7;
+    int level = 1;
     Cell[][] ArrayCell; // Tableau qui contient les cellules du jeu
     ArrayList<Cell> cell_used = new ArrayList<>();
     int game_score = 0;
@@ -38,6 +38,8 @@ public class Game extends Activity {
     Cell current_cell;
     boolean over = false; // Partie perdue
     AlertDialog.Builder alert;
+    AlertDialog.Builder alert_exit;
+    AlertDialog.Builder alert_game_over;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,22 +48,77 @@ public class Game extends Activity {
 
         table_game = (TableLayout) findViewById(R.id.table_game);
 
+
         // Remplir la table selon le niveau et la taille passee en parametres
         InitArrayCell(size, level);
         BuildTable(size);
 
         //Afficher message de victoire
         alert = new AlertDialog.Builder(Game.this);
-        alert.setTitle("About");
-        alert.setMessage("Sample About");
-        alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        alert.setTitle("Bravo vous avez gagné");
+
+        if (level == 3 && size == 8) alert.setMessage("Vous avez réussi tous les niveaux");
+
+        alert.setMessage("Passez au niveau suivant");
+        alert.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                Toast.makeText(Game.this, "Success", Toast.LENGTH_SHORT).show();
+                goNextLevel();
             }
         });
-        alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+        alert.setNegativeButton("Non", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                Toast.makeText(Game.this, "Fail", Toast.LENGTH_SHORT).show();
+                resetGame();
+            }
+        });
+
+        // Afficher message pour quitter le jeu
+
+        alert_exit = new AlertDialog.Builder(Game.this);
+        alert_exit.setTitle("Exit Game");
+        alert_exit.setMessage("Voulez vous quitter le jeu");
+        alert_exit.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                finish();// Sortir de l'application et revenir a la fenetre pour choisir nouveau
+                // levels
+            }
+        });
+        alert_exit.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                return; // Rien faire et continuer a jouer
+            }
+        });
+
+        // Afficher message pour partie perdue
+
+        alert_game_over = new AlertDialog.Builder(Game.this);
+        alert_game_over.setTitle("Game over");
+        alert_game_over.setMessage("Voulez vous rejouer");
+        alert_game_over.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                resetGame();
+
+            }
+        });
+        alert_game_over.setNegativeButton("Quitter le jeu", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                finish();// Sortir de l'application et revenir a la fenetre pour choisir nouveau
+                // levels
+            }
+        });
+
+
+        // Boutons pour initialiser et quitter le jeu
+        Button button_reset = (Button) findViewById(R.id.button_reset);
+        button_reset.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                resetGame();
+            }
+        });
+
+        Button button_exit = (Button) findViewById(R.id.button_exit);
+        button_exit.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                alert_exit.show();
             }
         });
 
@@ -96,7 +153,7 @@ public class Game extends Activity {
 
                         if (!isConnected(ArrayCell[IndexRow][IndexCol])) {
                             ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.First);
-                            addCellUsed(ArrayCell[IndexRow][IndexCol],true);
+                            addCellUsed(ArrayCell[IndexRow][IndexCol], true);
                             previous_cell = cell_used.get(cell_used.size() - 1);
                             current_cell = cell_used.get(cell_used.size() - 1);
                         }
@@ -106,7 +163,6 @@ public class Game extends Activity {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     if (ArrayCell[IndexRow][IndexCol].getColor() != color_chosen ||
                             !ArrayCell[IndexRow][IndexCol].isUsed()) {
-//                        active_draw = false;
                         clearCellDrawen();
                     } else {
                         if (!isConnected(ArrayCell[IndexRow][IndexCol])) {
@@ -115,8 +171,7 @@ public class Game extends Activity {
                             // Mettre a jour le nombre de tubes
                             if (isTubeValide()) {
                                 ++game_score;
-                            }
-                            else {
+                            } else {
                                 clearCellDrawen();
                             }
 
@@ -125,9 +180,16 @@ public class Game extends Activity {
 
                         setScore(game_score);
                     }
+                    // verifier si la partie est gagnee
                     if (isSuccessfulParty()) {
                         alert.show();
                     }
+
+                    // verifier si la partie est inachevee
+                    if (isGameOver()) {
+                        alert_game_over.show();
+                    }
+
 
                 }
                 if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() ==
@@ -135,9 +197,9 @@ public class Game extends Activity {
 
                     if (cell_used.size() > 0 && (ArrayCell[IndexRow][IndexCol].getColor() ==
                             Color.WHITE || ArrayCell[IndexRow][IndexCol].isUsed())) {
-                       if(! addCellUsed(ArrayCell[IndexRow][IndexCol],false)){
-                           active_draw = false;
-                       }
+                        if (!addCellUsed(ArrayCell[IndexRow][IndexCol], false)) {
+                            active_draw = false;
+                        }
                     }
                     if (cell_used.size() > 1) {
                         previous_cell = cell_used.get(cell_used.size() - 2);
@@ -151,10 +213,6 @@ public class Game extends Activity {
 
                     // Dessiner les lignes entre les cercles
                     DrawLine();
-
-                    // Corners
-
-
                     return true;
                 }
                 return false;
@@ -163,6 +221,8 @@ public class Game extends Activity {
 
     }
 
+    // Dès qu'une cellule est traversée par deux couleurs, cette fonction renvoie True, cela va
+    // permettera de définir si la partie est réussie ou non
     private boolean isOver() {
 
         for (int i = 0; i < cell_used.size() - 1; i++) {
@@ -175,6 +235,7 @@ public class Game extends Activity {
         return over;
     }
 
+    // Fonction qui vérifie si la partie a été gagnée
     private boolean isSuccessfulParty() {
         boolean success = true;
 
@@ -187,6 +248,32 @@ public class Game extends Activity {
         return (success && !isOver());
     }
 
+    // Fonction qui vérifie si la partie a été perdue
+    private boolean isGameOver() {
+        boolean game_over = false;
+        int number_first_circle = 0;
+        int number_seconde_circle = 0;
+        int number_used_circle = 0;
+        for (int row = 0; row < size; ++row) {
+            for (int col = 0; col < size; ++col) {
+                if (ArrayCell[row][col].isUsed()) {
+                    ++number_used_circle;
+                    if (ArrayCell[row][col].getType() == Cell.CellType.First) {
+                        ++number_first_circle;
+                    } else if (ArrayCell[row][col].getType() == Cell.CellType.Second) {
+                        ++number_seconde_circle;
+                    }
+                }
+            }
+        }
+
+        if ((number_first_circle == number_seconde_circle) && (number_first_circle ==
+                number_used_circle / 2))
+            game_over = true;
+        return game_over && !isSuccessfulParty();
+    }
+
+    // Fonction qui vérifie si deux cercles de même couleurs sont reliées
     private boolean isConnected(Cell cell) {
         boolean connected = false;
         if (cell.getType() != Cell.CellType.None && cell.isUsed()) {
@@ -209,33 +296,26 @@ public class Game extends Activity {
 
     }
 
+    // Ajoute les cellules qui sont en train d'être dessiner
     private boolean addCellUsed(Cell cell_to_add, boolean isFirst) {
-        System.out.println("rani hna :"+cell_to_add.getIndexCol()+" "+cell_to_add.getIndexRow());
-//        if(!isFirst && cell_to_add.isUsed() && cell_to_add.getColor() !=color_chosen) {
-//            System.out.println("not add :");
-//            return false;
-//        }
         boolean exist = false;
-        for (Cell item : cell_used) {
-            if (item.getIndexRow() == cell_to_add.getIndexRow() && item.getIndexCol() ==
-                    cell_to_add.getIndexCol()) {
-                exist = true;
+        if (!isConnected(cell_to_add)) {
+            for (Cell item : cell_used) {
+                if (item.getIndexRow() == cell_to_add.getIndexRow() && item.getIndexCol() ==
+                        cell_to_add.getIndexCol()) {
+                    exist = true;
+                }
             }
+            if (!exist) {
+                cell_used.add(cell_to_add);
+            }
+            return true;
+        } else {
+            return false;
         }
-        if (!exist) {
-            cell_used.add(cell_to_add);
-        }
-        return true;
     }
-//
-//    private boolean isWhitetOnMainArray(Cell cell) {
-//        if (ArrayCell[cell.getIndexRow()][cell.getIndexCol()].getColor() == Color.WHITE) {
-//            return true;
-//        }
-//
-//        return false;
-//    }
 
+    // Vérifier si le cercle est un cercle finale
     private boolean isSecondCircle(int IndexRow, int IndexCol) {
         boolean secondeCircle = false;
         for (int row = 0; row < size; ++row) {
@@ -250,6 +330,7 @@ public class Game extends Activity {
         return secondeCircle;
     }
 
+    // redissine les cercles selon la direction
     private void redesignSecondCircle(int IndexRow, int IndexCol) {
         // From Up to Down
         if (IndexPreviousCellRow > IndexCurrentCellRow && IndexPreviousCellCol ==
@@ -292,6 +373,7 @@ public class Game extends Activity {
         BuildTable(size);
     }
 
+    // tracer les coins
     private void DrawLine() {
 
         // cellules temporaires pour verifier si nous avons un coins
@@ -308,7 +390,8 @@ public class Game extends Activity {
         }
 
         // Verifier si c'est un corner
-        if ((cell_used.size() >= 3) && (cell_a.getIndexRow() != cell_c.getIndexRow() && cell_a.getIndexCol() != cell_c.getIndexCol())) {
+        if ((cell_used.size() >= 3) && (cell_a.getIndexRow() != cell_c.getIndexRow() && cell_a
+                .getIndexCol() != cell_c.getIndexCol())) {
 
             // From Left to Down or From Down to Left
             if (((cell_c.getIndexRow() == cell_b.getIndexRow()) && (cell_a.getIndexCol() ==
@@ -325,8 +408,6 @@ public class Game extends Activity {
                     clearTableLayout();
                     BuildTable(size);
                 }
-//                System.out.println("LeftDown");
-
             }
 
             // From Left to Up or From Up to Left
@@ -344,8 +425,6 @@ public class Game extends Activity {
                     clearTableLayout();
                     BuildTable(size);
                 }
-//                System.out.println("LeftUp");
-
             }
 
             // From Right to Down or From Down to Right
@@ -363,8 +442,6 @@ public class Game extends Activity {
                     clearTableLayout();
                     BuildTable(size);
                 }
-//                System.out.println("RightDown");
-
             }
 
             // From Right to Up or From Up to Right
@@ -382,8 +459,6 @@ public class Game extends Activity {
                     clearTableLayout();
                     BuildTable(size);
                 }
-//                System.out.println("RightUp");
-
             }
 
         } else {
@@ -487,7 +562,6 @@ public class Game extends Activity {
     }
 
     private void clearCellDrawen() {
-        System.out.println("Size :" + cell_used.size());
         for (Cell item : cell_used) {
             int IndexCol = item.getIndexCol();
             int IndexRow = item.getIndexRow();
@@ -506,6 +580,7 @@ public class Game extends Activity {
         BuildTable(size);
     }
 
+    // tracer les tubes
     private void drawTube(int IndexRow, int IndexCol, int color_chosen, boolean active, Cell
             .Sharp sharp) {
         if (active_draw) {
@@ -528,12 +603,14 @@ public class Game extends Activity {
         }
     }
 
+    // verifier si le tube est valide
     private boolean isTubeValide() {
-           if (cell_used.size() > 0) {
+        if (cell_used.size() > 0) {
             Cell cell_first = cell_used.get(0);
             for (Cell item : cell_used) {
-                if (item.getColor() != cell_first.getColor() && item.isUsed()){
-                   return false;}
+                if (item.getColor() != cell_first.getColor() && item.isUsed()) {
+                    return false;
+                }
 
             }
         }
@@ -541,13 +618,31 @@ public class Game extends Activity {
         return true;
     }
 
+    // met à jour le score
     private void setScore(int score) {
         game_score = score;
         TextView text_score = (TextView) findViewById(R.id.score_id);
         text_score.setText(" " + game_score);
     }
 
+    // met à jour le level
+    private void setLevel(int lev) {
+        level = lev;
+        TextView text_level = (TextView) findViewById(R.id.level_id);
+        text_level.setText(" " + level);
+    }
+
+    // met à jour la taille
+    private void setSize(int siz) {
+        size = siz;
+        TextView text_size = (TextView) findViewById(R.id.size_id);
+        text_size.setText(" " + size);
+    }
+
+    // créer la table avec les bonnes cercles
     private void BuildTable(int size) {
+        setLevel(level);
+        setSize(size);
         clearTableLayout();
         // Remplir la TableLayout
         for (int i = 0; i < size; i++) {
@@ -563,6 +658,7 @@ public class Game extends Activity {
         }
     }
 
+    // effacer les éléments de la table
     private void clearTableLayout() {
         int count = table_game.getChildCount();
         for (int i = 0; i < size; i++) {
@@ -572,7 +668,35 @@ public class Game extends Activity {
         table_game.removeAllViewsInLayout();
     }
 
+    // Incrémenter le level
+    private void goNextLevel() {
+        if (size == 7) {
+            if (level < 3) {
+                ++level;
+            } else {
+                ++size;
+                level = 1;
+            }
+        } else if (size == 8) {
+            if (level < 3) {
+                ++level;
+            }
+        }
+        InitArrayCell(size, level);
+        BuildTable(size);
+        game_score = 0;
+        setScore(game_score);
+    }
 
+    // Initialiser le jeu
+    private void resetGame() {
+        InitArrayCell(size, level);
+        BuildTable(size);
+        game_score = 0;
+        setScore(game_score);
+    }
+
+    // Initialiser le tableau avec les bonnes cercles selon le niveau
     private void InitArrayCell(int size, int level) {
 
         ArrayCell = new Cell[size][size];
