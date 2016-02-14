@@ -23,8 +23,8 @@ public class Game extends Activity {
 
     TableLayout table_game;
     // TODO: remplacer size et level a partir de level Activity
-    int size = 7;
-    int level = 2;
+    int size = 8;
+    int level = 3;
     Cell[][] ArrayCell; // Tableau qui contient les cellules du jeu
     ArrayList<Cell> cell_used = new ArrayList<>();
     int game_score = 0;
@@ -38,6 +38,7 @@ public class Game extends Activity {
     Cell current_cell;
     boolean over = false; // Partie perdue
     AlertDialog.Builder alert;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,8 +55,8 @@ public class Game extends Activity {
         alert.setTitle("About");
         alert.setMessage("Sample About");
         alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            public void onClick (DialogInterface dialog, int id) {
-                Toast.makeText (Game.this, "Success", Toast.LENGTH_SHORT) .show();
+            public void onClick(DialogInterface dialog, int id) {
+                Toast.makeText(Game.this, "Success", Toast.LENGTH_SHORT).show();
             }
         });
         alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -76,7 +77,12 @@ public class Game extends Activity {
                 // position de la case appuyee
                 int IndexRow = (int) event.getY() / cellWidth;
                 int IndexCol = (int) event.getX() / cellHeight;
-                //
+
+                // Verifier que les IndexRow et IndexCol ne depasseront pas les limites
+                IndexRow = IndexRow > (size - 1) ? (size - 1) : IndexRow;
+                IndexCol = IndexCol > (size - 1) ? (size - 1) : IndexCol;
+
+                // Une fois une cellule est touchee c est l evenement ActionDown qui est capte
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (ArrayCell[IndexRow][IndexCol].getColor() != Color.WHITE &&
                             ArrayCell[IndexRow][IndexCol].isUsed()) {
@@ -90,7 +96,7 @@ public class Game extends Activity {
 
                         if (!isConnected(ArrayCell[IndexRow][IndexCol])) {
                             ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.First);
-                            addCellUsed(ArrayCell[IndexRow][IndexCol]);
+                            addCellUsed(ArrayCell[IndexRow][IndexCol],true);
                             previous_cell = cell_used.get(cell_used.size() - 1);
                             current_cell = cell_used.get(cell_used.size() - 1);
                         }
@@ -98,25 +104,28 @@ public class Game extends Activity {
 
                 }
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-//                    color_chosen =  Color.WHITE;
                     if (ArrayCell[IndexRow][IndexCol].getColor() != color_chosen ||
                             !ArrayCell[IndexRow][IndexCol].isUsed()) {
-                        active_draw = false;
+//                        active_draw = false;
                         clearCellDrawen();
                     } else {
                         if (!isConnected(ArrayCell[IndexRow][IndexCol])) {
                             ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.Second);
                             redesignSecondCircle(IndexCurrentCellRow, IndexCurrentCellCol);
                             // Mettre a jour le nombre de tubes
+                            if (isTubeValide()) {
                                 ++game_score;
+                            }
+                            else {
+                                clearCellDrawen();
+                            }
 
                         }
                         cell_used.clear();
 
                         setScore(game_score);
                     }
-                    if(isSuccessfulParty())
-                    {
+                    if (isSuccessfulParty()) {
                         alert.show();
                     }
 
@@ -126,7 +135,9 @@ public class Game extends Activity {
 
                     if (cell_used.size() > 0 && (ArrayCell[IndexRow][IndexCol].getColor() ==
                             Color.WHITE || ArrayCell[IndexRow][IndexCol].isUsed())) {
-                        addCellUsed(ArrayCell[IndexRow][IndexCol]);
+                       if(! addCellUsed(ArrayCell[IndexRow][IndexCol],false)){
+                           active_draw = false;
+                       }
                     }
                     if (cell_used.size() > 1) {
                         previous_cell = cell_used.get(cell_used.size() - 2);
@@ -140,6 +151,7 @@ public class Game extends Activity {
 
                     // Dessiner les lignes entre les cercles
                     DrawLine();
+
                     // Corners
 
 
@@ -163,18 +175,18 @@ public class Game extends Activity {
         return over;
     }
 
-    private boolean isSuccessfulParty(){
+    private boolean isSuccessfulParty() {
         boolean success = true;
 
         for (int row = 0; row < size; ++row) {
             for (int col = 0; col < size; ++col) {
-                  if( ArrayCell[row][col].getColor()== Color.WHITE)
-                      success = false;
+                if (ArrayCell[row][col].getColor() == Color.WHITE) success = false;
             }
         }
 
         return (success && !isOver());
     }
+
     private boolean isConnected(Cell cell) {
         boolean connected = false;
         if (cell.getType() != Cell.CellType.None && cell.isUsed()) {
@@ -197,18 +209,45 @@ public class Game extends Activity {
 
     }
 
-    private void addCellUsed(Cell cell_to_add) {
+    private boolean addCellUsed(Cell cell_to_add, boolean isFirst) {
+        System.out.println("rani hna :"+cell_to_add.getIndexCol()+" "+cell_to_add.getIndexRow());
+//        if(!isFirst && cell_to_add.isUsed() && cell_to_add.getColor() !=color_chosen) {
+//            System.out.println("not add :");
+//            return false;
+//        }
         boolean exist = false;
         for (Cell item : cell_used) {
             if (item.getIndexRow() == cell_to_add.getIndexRow() && item.getIndexCol() ==
                     cell_to_add.getIndexCol()) {
                 exist = true;
-
             }
         }
         if (!exist) {
             cell_used.add(cell_to_add);
         }
+        return true;
+    }
+//
+//    private boolean isWhitetOnMainArray(Cell cell) {
+//        if (ArrayCell[cell.getIndexRow()][cell.getIndexCol()].getColor() == Color.WHITE) {
+//            return true;
+//        }
+//
+//        return false;
+//    }
+
+    private boolean isSecondCircle(int IndexRow, int IndexCol) {
+        boolean secondeCircle = false;
+        for (int row = 0; row < size; ++row) {
+            for (int col = 0; col < size; ++col) {
+                if (ArrayCell[row][col].getColor() == ArrayCell[IndexRow][IndexCol].getColor() &&
+                        ArrayCell[row][col].getType() == Cell.CellType.First) {
+                    secondeCircle = true;
+                }
+            }
+        }
+
+        return secondeCircle;
     }
 
     private void redesignSecondCircle(int IndexRow, int IndexCol) {
@@ -269,8 +308,7 @@ public class Game extends Activity {
         }
 
         // Verifier si c'est un corner
-        if ((cell_used.size() >= 3) && (cell_a.getIndexRow() != cell_c.getIndexRow() && cell_a
-                .getIndexCol() != cell_c.getIndexCol())) {
+        if ((cell_used.size() >= 3) && (cell_a.getIndexRow() != cell_c.getIndexRow() && cell_a.getIndexCol() != cell_c.getIndexCol())) {
 
             // From Left to Down or From Down to Left
             if (((cell_c.getIndexRow() == cell_b.getIndexRow()) && (cell_a.getIndexCol() ==
@@ -287,7 +325,7 @@ public class Game extends Activity {
                     clearTableLayout();
                     BuildTable(size);
                 }
-                System.out.println("LeftDown");
+//                System.out.println("LeftDown");
 
             }
 
@@ -306,7 +344,7 @@ public class Game extends Activity {
                     clearTableLayout();
                     BuildTable(size);
                 }
-                System.out.println("LeftUp");
+//                System.out.println("LeftUp");
 
             }
 
@@ -325,7 +363,7 @@ public class Game extends Activity {
                     clearTableLayout();
                     BuildTable(size);
                 }
-                System.out.println("RightDown");
+//                System.out.println("RightDown");
 
             }
 
@@ -344,7 +382,7 @@ public class Game extends Activity {
                     clearTableLayout();
                     BuildTable(size);
                 }
-                System.out.println("RightUp");
+//                System.out.println("RightUp");
 
             }
 
@@ -465,26 +503,42 @@ public class Game extends Activity {
             ArrayCell[IndexRow][IndexCol].setType(Cell.CellType.None);
         }
         cell_used.clear();
-//        clearTableLayout();
         BuildTable(size);
     }
 
     private void drawTube(int IndexRow, int IndexCol, int color_chosen, boolean active, Cell
             .Sharp sharp) {
-        if (active_draw && !ArrayCell[IndexRow][IndexCol].isUsed()) {
-            if (sharp == Cell.Sharp.UpDown && (IndexRow != 0 && IndexRow != size - 1)) {
-                ArrayCell[IndexRow][IndexCol].setSharp(sharp);
-                ArrayCell[IndexRow][IndexCol].setColor(color_chosen);
-//                clearTableLayout();
-                BuildTable(size);
-            } else if (sharp == Cell.Sharp.LeftRight && (IndexCol != 0 && IndexCol != size - 1)) {
-                ArrayCell[IndexRow][IndexCol].setSharp(sharp);
-                ArrayCell[IndexRow][IndexCol].setColor(color_chosen);
-//                clearTableLayout();
-                BuildTable(size);
+        if (active_draw) {
+            if (!ArrayCell[IndexRow][IndexCol].isUsed()) {
+                if (sharp == Cell.Sharp.UpDown && (IndexRow != 0 && IndexRow != size - 1)) {
+                    ArrayCell[IndexRow][IndexCol].setSharp(sharp);
+                    ArrayCell[IndexRow][IndexCol].setColor(color_chosen);
+                    BuildTable(size);
+                } else if (sharp == Cell.Sharp.LeftRight && (IndexCol != 0 && IndexCol != size -
+                        1)) {
+
+                    ArrayCell[IndexRow][IndexCol].setSharp(sharp);
+                    ArrayCell[IndexRow][IndexCol].setColor(color_chosen);
+                    BuildTable(size);
+                }
+            } else if (isSecondCircle(IndexRow, IndexCol)) {
+                redesignSecondCircle(IndexRow, IndexCol);
+            }
+
+        }
+    }
+
+    private boolean isTubeValide() {
+           if (cell_used.size() > 0) {
+            Cell cell_first = cell_used.get(0);
+            for (Cell item : cell_used) {
+                if (item.getColor() != cell_first.getColor() && item.isUsed()){
+                   return false;}
+
             }
         }
 
+        return true;
     }
 
     private void setScore(int score) {
