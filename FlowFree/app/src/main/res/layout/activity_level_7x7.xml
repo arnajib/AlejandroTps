@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    >
+    <TextView
+        android:id="@+id/txtVwgrid_7"
+        android:layout_width="300dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:text="Grid 7x7"
+        />
+
+    <Button
+        android:id="@+id/level_71"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/txtVwgrid_7"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:onClick="goToLevels"
+        android:text="level 1"
+        />
+    <Button
+        android:id="@+id/level_72"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/level_71"
+        android:onClick="goToLevels"
+        android:text="level 2" />
+
+    <Button
+        android:id="@+id/level_73"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/level_72"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:onClick="gameExit"
+        android:text="level 3" />
+    <TextView
+        android:id="@+id/txtVwgrid_8"
+        android:layout_width="300dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/level_73"
+        android:layout_centerHorizontal="true"
+        android:text="Grid 8x8"
+        />
+    <Button
+        android:id="@+id/level_81"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/txtVwgrid_8"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:onClick="goToLevels"
+        android:text="level 1"
+        />
+
+    <Button
+        android:id="@+id/level_82"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/level_81"
+        android:onClick="goToLevels"
+        android:text="level 2" />
+    <Button
+        android:id="@+id/level_83"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/level_82"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:onClick="gameExit"
+        android:text="level 3" />
+</RelativeLayout>

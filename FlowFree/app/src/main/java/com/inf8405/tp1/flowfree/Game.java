@@ -14,8 +14,16 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 
@@ -23,6 +31,8 @@ public class Game extends Activity {
 
     TableLayout table_game;
     // TODO: remplacer size et level a partir de level Activity
+
+
     int size = 7;
     int level = 1;
     Cell[][] ArrayCell; // Tableau qui contient les cellules du jeu
@@ -40,11 +50,19 @@ public class Game extends Activity {
     AlertDialog.Builder alert;
     AlertDialog.Builder alert_exit;
     AlertDialog.Builder alert_game_over;
+    FileOutputStream fileOutputStream;
+    OutputStreamWriter osw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        Bundle sizeRecu = getIntent().getExtras();
+        size = sizeRecu.getInt("size");
+        Bundle levelRecu = getIntent().getExtras();
+        level = levelRecu.getInt("level");
+
+
 
         table_game = (TableLayout) findViewById(R.id.table_game);
 
@@ -57,17 +75,21 @@ public class Game extends Activity {
         alert = new AlertDialog.Builder(Game.this);
         alert.setTitle("Bravo vous avez gagné");
 
-        if (level == 3 && size == 8) alert.setMessage("Vous avez réussi tous les niveaux");
+
 
         alert.setMessage("Passez au niveau suivant");
+        if (level == 3 && size == 8) alert.setMessage("Vous avez réussi tous les niveaux");
         alert.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 goNextLevel();
+                saveData();
             }
         });
         alert.setNegativeButton("Non", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 resetGame();
+                saveData();
+                //resetData();
             }
         });
 
@@ -182,6 +204,8 @@ public class Game extends Activity {
                     }
                     // verifier si la partie est gagnee
                     if (isSuccessfulParty()) {
+
+
                         alert.show();
                     }
 
@@ -219,6 +243,63 @@ public class Game extends Activity {
             }
         });
 
+    }
+    public void resetData(){
+        try {
+            fileOutputStream = openFileOutput("dataLevelSize.txt", MODE_WORLD_WRITEABLE);
+            osw = new OutputStreamWriter(fileOutputStream);
+            try {
+                osw.write(7 + ";" + 1);
+                osw.flush();
+                osw.close();
+                Toast.makeText(getBaseContext(), "Level saved", Toast.LENGTH_LONG).show();
+                int data_block = 100;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    private void saveData() {
+        try {
+            fileOutputStream = openFileOutput("dataLevelSize.txt", MODE_WORLD_WRITEABLE);
+            osw = new OutputStreamWriter(fileOutputStream);
+            try {
+                osw.write(size + ";" + level);
+                osw.flush();
+                osw.close();
+                Toast.makeText(getBaseContext(), "Level saved", Toast.LENGTH_LONG).show();
+                int data_block = 100;
+                try {
+                    FileInputStream fis = openFileInput("dataLevelSize.txt");
+                    InputStreamReader isr = new InputStreamReader(fis);
+                    char[] dataChar = new char[data_block];
+                    String final_data = "";
+                    int size1;
+                    try {
+                        while((size1=isr.read(dataChar))>0)
+                        {
+                            String read_data = String.copyValueOf(dataChar, 0, size1);
+                            final_data+=read_data;
+                            dataChar = new char[data_block];
+
+                        }
+                        Toast.makeText(getBaseContext(),"Contenu: " + final_data, Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     // Dès qu'une cellule est traversée par deux couleurs, cette fonction renvoie True, cela va
