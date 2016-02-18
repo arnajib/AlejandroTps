@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
                     dataChar = new char[data_block];
 
                 }
-                Toast.makeText(getBaseContext(),"Contenu: " + final_data, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getBaseContext(),"Contenu: " + final_data, Toast.LENGTH_LONG).show();
             } catch (IOException e) {
                 e.printStackTrace();
             }

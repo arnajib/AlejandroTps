@@ -78,18 +78,19 @@ public class Game extends Activity {
 
 
         alert.setMessage("Passez au niveau suivant");
-        if (level == 3 && size == 8) alert.setMessage("Vous avez réussi tous les niveaux");
+
         alert.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 goNextLevel();
                 saveData();
+
             }
         });
         alert.setNegativeButton("Non", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 resetGame();
                 saveData();
-                //resetData();
+//                resetData();
             }
         });
 
@@ -204,8 +205,7 @@ public class Game extends Activity {
                     }
                     // verifier si la partie est gagnee
                     if (isSuccessfulParty()) {
-
-
+                        if (level == 3 && size == 8) alert.setMessage("Vous avez réussi tous les niveaux");
                         alert.show();
                     }
 
@@ -285,7 +285,7 @@ public class Game extends Activity {
                             dataChar = new char[data_block];
 
                         }
-                        Toast.makeText(getBaseContext(),"Contenu: " + final_data, Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getBaseContext(),"Contenu: " + final_data, Toast.LENGTH_LONG).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

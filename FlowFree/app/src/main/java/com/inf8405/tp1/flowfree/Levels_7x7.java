@@ -33,9 +33,11 @@ public class Levels_7x7 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_level_7x7);
-
+        boolean isFileExist = false;
         try {
             FileInputStream fis = openFileInput("dataLevelSize.txt");
+            if(fis != null)
+                isFileExist = true;
             InputStreamReader isr = new InputStreamReader(fis);
             char[] dataChar = new char[100];
             String final_data = "";
@@ -48,7 +50,7 @@ public class Levels_7x7 extends AppCompatActivity {
                     dataChar = new char[100];
 
                 }
-                Toast.makeText(getBaseContext(), "Contenu: " + final_data, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getBaseContext(), "Contenu: " + final_data, Toast.LENGTH_LONG).show();
                 String[] splitedStr = final_data.split(";");
                 String sz = splitedStr[0];
                 String lvl = splitedStr[1];
@@ -67,7 +69,40 @@ public class Levels_7x7 extends AppCompatActivity {
         btnLevel_81 = (Button) findViewById(R.id.level_81);
         btnLevel_82 = (Button) findViewById(R.id.level_82);
         btnLevel_83 = (Button) findViewById(R.id.level_83);
-        if(levell == 1 && sizel == 7){
+        if(isFileExist) {
+            if (levell == 1 && sizel == 7) {
+                btnLevel_72.setEnabled(false);
+                btnLevel_72.setAlpha(.5f);
+                btnLevel_72.setClickable(false);
+                btnLevel_73.setEnabled(false);
+                btnLevel_73.setAlpha(.5f);
+                btnLevel_73.setClickable(false);
+                btnLevel_81.setEnabled(false);
+                btnLevel_81.setAlpha(.5f);
+                btnLevel_81.setClickable(false);
+                btnLevel_82.setEnabled(false);
+                btnLevel_82.setAlpha(.5f);
+                btnLevel_82.setClickable(false);
+                btnLevel_83.setEnabled(false);
+                btnLevel_83.setAlpha(.5f);
+                btnLevel_83.setClickable(false);
+            } else if (levell == 2 && sizel == 7) {
+                btnLevel_73.setEnabled(false);
+                btnLevel_81.setEnabled(false);
+                btnLevel_82.setEnabled(false);
+                btnLevel_83.setEnabled(false);
+            } else if (levell == 3 && sizel == 7) {
+                btnLevel_81.setEnabled(false);
+                btnLevel_82.setEnabled(false);
+                btnLevel_83.setEnabled(false);
+            } else if (levell == 1 && sizel == 8) {
+                btnLevel_82.setEnabled(false);
+                btnLevel_83.setEnabled(false);
+            } else if (levell == 2 && sizel == 8) {
+                btnLevel_83.setEnabled(false);
+            }
+        }
+        else{
             btnLevel_72.setEnabled(false);
             btnLevel_72.setAlpha(.5f);
             btnLevel_72.setClickable(false);
@@ -84,24 +119,7 @@ public class Levels_7x7 extends AppCompatActivity {
             btnLevel_83.setAlpha(.5f);
             btnLevel_83.setClickable(false);
         }
-        else if(levell == 2 && sizel == 7){
-            btnLevel_73.setEnabled(false);
-            btnLevel_81.setEnabled(false);
-            btnLevel_82.setEnabled(false);
-            btnLevel_83.setEnabled(false);
-        }
-        else if(levell == 3 && sizel == 7){
-            btnLevel_81.setEnabled(false);
-            btnLevel_82.setEnabled(false);
-            btnLevel_83.setEnabled(false);
-        }
-        else if(levell == 1 && sizel == 8){
-            btnLevel_82.setEnabled(false);
-            btnLevel_83.setEnabled(false);
-        }
-        else if(levell == 2 && sizel == 8){
-            btnLevel_83.setEnabled(false);
-        }
+
         btnLevel_71.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
